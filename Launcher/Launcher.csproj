@@ -9,11 +9,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\close.png" />
+    <None Remove="Resources\favicon.ico" />
+    <None Remove="Resources\main-background.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MvvmCross.Platforms.Wpf" Version="9.2.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\close.png" />
+    <Resource Include="Resources\favicon.ico" />
+    <Resource Include="Resources\main-background.jpg" />
   </ItemGroup>
 
 </Project>
