@@ -1,11 +1,10 @@
 ﻿using Newtonsoft.Json;
-using System.IO;
 
 namespace Core.Configuration;
 
 public class ConfigLoader {
-    public static AppConfig Load(string path) {
+    public static AppConfigModel Load(string path) {
         var configJson = File.ReadAllText(path);
-        return JsonConvert.DeserializeObject<AppConfig>(configJson) ?? throw new Exception("Bad configuration!");
+        return JsonConvert.DeserializeObject<AppConfigModel>(configJson) ?? throw new Exception("Bad configuration!");
     }
 }

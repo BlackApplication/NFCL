@@ -1,7 +1,8 @@
 ﻿using Core.Configuration;
+using Models.Api;
 using MvvmCross.Commands;
 using MvvmCross.Navigation;
-using MvvmCross.ViewModels;
+using Services.Interfaces;
 using System.Diagnostics;
 
 namespace Core.ViewModels;
@@ -29,10 +30,23 @@ public class LoginViewModel : BaseViewModel {
 
     public MvxCommand GoToSiteCommand { get; }
 
+    public MvxAsyncCommand LoginCommand { get; }
+
+    private readonly IAuthService _authService;
+
     #endregion
 
-    public LoginViewModel(IMvxNavigationService navigationService, AppConfig config) : base(navigationService, config) {
+    public LoginViewModel(IMvxNavigationService navigationService, AppConfigModel config, IAuthService authService) : base(navigationService, config) {
+        _authService = authService;
+
         GoToSiteCommand = new MvxCommand(GoToSite);
+        LoginCommand = new MvxAsyncCommand(Login);
+    }
+
+    private async Task Login() {
+        var loginData = new LoginModel { Email = Email, Password = Password };
+
+        var user = await _authService.LoginAsync(loginData);
     }
 
     private void GoToSite() {

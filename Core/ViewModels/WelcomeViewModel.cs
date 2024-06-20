@@ -11,7 +11,7 @@ public class WelcomeViewModel : BaseViewModel {
         await _navigationService.Navigate<LoginViewModel>();
     }
 
-    public WelcomeViewModel(IMvxNavigationService navigationService, AppConfig config) : base(navigationService, config) {
+    public WelcomeViewModel(IMvxNavigationService navigationService, AppConfigModel config) : base(navigationService, config) {
         ShowLogin = new MvxAsyncCommand(GoToLogin);
     }
 }

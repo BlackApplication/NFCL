@@ -180,7 +180,7 @@
 
                         <Grid Grid.Row="5">
                             <Border Style="{ StaticResource BorderRounding15 }" Background="#BF61D7" Width="90" Height="40" Margin="225,10,35,29">
-                                <Button Style="{ StaticResource CommonButtonStyle }" Background="Transparent" BorderThickness="0" Margin="0, 0, 0, 5">
+                                <Button Style="{ StaticResource CommonButtonStyle }" Background="Transparent" BorderThickness="0" Margin="0, 0, 0, 5" Command="{ Binding LoginCommand }">
                                     <TextBlock Text="войти" FontSize="24" Foreground="White"/>
                                 </Button>
                             </Border>

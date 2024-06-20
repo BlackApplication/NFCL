@@ -9,7 +9,7 @@ public class BaseViewModel : MvxViewModel {
 
     public string CurentAppVersion { get; }
 
-    public BaseViewModel(IMvxNavigationService navigationService, AppConfig config) {
+    public BaseViewModel(IMvxNavigationService navigationService, AppConfigModel config) {
         _navigationService = navigationService;
 
         CurentAppVersion = config.Version;
