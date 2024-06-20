@@ -13,6 +13,9 @@ public class AuthService : IAuthService {
 
     public async Task<CurrentUserModel?> LoginAsync(LoginModel data) {
         var jsonResult = await _httpService.PostAsync("Auth/Login", data);
+        if (jsonResult == "Invalid credentials!") {
+            return null;
+        }
 
         return JsonConvert.DeserializeObject<CurrentUserModel>(jsonResult);
     }
