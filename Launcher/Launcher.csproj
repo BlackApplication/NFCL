@@ -10,7 +10,10 @@
 
   <ItemGroup>
     <None Remove="Resources\close.png" />
+    <None Remove="Resources\email.png" />
     <None Remove="Resources\favicon.ico" />
+    <None Remove="Resources\invalid.png" />
+    <None Remove="Resources\lock.png" />
     <None Remove="Resources\main-background.jpg" />
   </ItemGroup>
 
@@ -24,8 +27,15 @@
 
   <ItemGroup>
     <Resource Include="Resources\close.png" />
+    <Resource Include="Resources\email.png" />
     <Resource Include="Resources\favicon.ico" />
+    <Resource Include="Resources\invalid.png" />
+    <Resource Include="Resources\lock.png" />
     <Resource Include="Resources\main-background.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Views\Directives\" />
   </ItemGroup>
 
 </Project>

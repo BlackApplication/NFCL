@@ -7,17 +7,20 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:local="clr-namespace:Launcher.Views.Pages"
     xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+    xmlns:vm="clr-namespace:Core.ViewModels;assembly=Core"
+    d:DataContext="{ d:DesignInstance Type=vm:WelcomeViewModel }"
     mc:Ignorable="d"
-    d:DesignHeight="600" d:DesignWidth="1050">
+    Height="600" Width="1050">
 
     <Border Style="{ StaticResource CommonBackground }">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="35"></RowDefinition>
                 <RowDefinition></RowDefinition>
+                <RowDefinition Height="40"></RowDefinition>
             </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0">
+            <Grid Grid.Row="0" Background="Transparent" MouseDown="WindowMove">
                 <Button Width="20"
                         Height="20"
                         Background="Transparent"
@@ -28,10 +31,10 @@
                         Margin="0,0,20,0"
                         Click="ShutDownApp">
                     <Image Source="pack://application:,,,/Resources/close.png"
-                           Width="20"
-                           Height="20"
-                           VerticalAlignment="Center"
-                           HorizontalAlignment="Center"/>
+                            Width="20"
+                            Height="20"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Center"/>
                 </Button>
             </Grid>
 
@@ -59,7 +62,7 @@
                                    Foreground="White"
                                    FontSize="60"
                                    HorizontalAlignment="Left"
-                                   VerticalAlignment="Top" Margin="279,40,0,0"/>
+                                   VerticalAlignment="Top" Margin="274,60,0,0"/>
                     </Grid>
                 </Grid>
 
@@ -69,6 +72,7 @@
                             Background="Transparent"
                             BorderBrush="Transparent"
                             Style="{ StaticResource CommonButtonStyle }"
+                            Command="{ Binding ShowLogin }"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Bottom"
                             Margin="29,0,0,64">
@@ -77,6 +81,38 @@
                                    TextDecorations="Underline"
                                    Foreground="White" />
                     </Button>
+                </Grid>
+            </Grid>
+
+            <Grid Grid.Row="2" Width="140"
+                  HorizontalAlignment="Left"
+                  Margin="910,0,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <TextBlock Text="(c) NightfallCraft Team"
+                               Foreground="White"/>
+                </Grid>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition Width="50"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Column="0">
+                        <TextBlock Text="current version: "
+                       Foreground="White"/>
+                    </Grid>
+
+                    <Grid Grid.Column="1"
+                          HorizontalAlignment="Left">
+                        <TextBlock Text="{Binding CurentAppVersion}" 
+                                   Foreground="White"/>
+                    </Grid>
                 </Grid>
             </Grid>
 

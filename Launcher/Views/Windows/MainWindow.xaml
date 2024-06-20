@@ -7,9 +7,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="clr-namespace:Launcher.Views.Windows"
     mc:Ignorable="d"
-    Title="NightfallCraft Launcher" Height="600" Width="1050"
+    Title="NightfallCraft Launcher"
+    WindowStartupLocation="CenterScreen"
     WindowStyle="None"
     AllowsTransparency="True" Background="Transparent"
-    MouseDown="WindowMove"
     Icon="pack://application:,,,/Resources/favicon.ico">
 </views:MvxWindow>
