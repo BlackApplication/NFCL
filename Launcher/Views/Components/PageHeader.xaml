@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="Launcher.Views.Components.PageHeader"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Launcher.Views.Components"
+             mc:Ignorable="d"
+             d:Width="600"
+             d:Background="Gray"
+             Background="Transparent"
+             MouseDown="WindowMove"
+             Height="50">
+    <Grid>
+        <Button Style="{ StaticResource CommonButtonStyle }" Background="Transparent" BorderThickness="0" Margin="0, 10, 50, 0" Height="20" Width="20" HorizontalAlignment="Right" Click="ColapsApp">
+            <Image Source="/Resources/collaps.png"  Height="20" Width="20"/>
+        </Button>
+
+        <Button Style="{ StaticResource CommonButtonStyle }" Background="Transparent" BorderThickness="0" Margin="0,10,20,0" Height="20" Width="20" HorizontalAlignment="Right" Click="ShutDownApp">
+            <Image Source="/Resources/close.png" Height="20" Width="20"/>
+        </Button>
+    </Grid>
+</UserControl>

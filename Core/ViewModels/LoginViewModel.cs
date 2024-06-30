@@ -1,31 +1,40 @@
-﻿using Core.Configuration;
-using Core.States.Interfaces;
+﻿using Core.ViewModels.Base;
 using Models.Api;
+using Models.Json;
 using MvvmCross.Commands;
 using MvvmCross.Navigation;
-using Services.Interfaces;
+using Services.Api.Interfaces;
+using Services.Helper;
 using Services.States;
-using System.Diagnostics;
 
 namespace Core.ViewModels;
 
-public class LoginViewModel : BaseViewModel {
+public class LoginViewModel : BaseViewModel<Action> {
+
+    #region Services
+
+    private readonly IAuthService _authService;
+
+    private readonly AppConfigModel _config;
+
+    private readonly CurrentUserState _userState;
+
+    #endregion
+
     #region Variables
+
+    private Action _afterLogin;
 
     private string _email = "";
     public string Email {
         get => _email;
-        set => SetProperty(ref _email, value, () => {
-            IsErrorVisible = false;
-        });
+        set => SetProperty(ref _email, value, () => IsErrorVisible = false);
     }
 
     private string _password = "";
     public string Password {
         get => _password;
-        set => SetProperty(ref _password, value, () => {
-            IsErrorVisible = false;
-        });
+        set => SetProperty(ref _password, value, () => IsErrorVisible = false);
     }
 
     private bool _isErrorVisible;
@@ -34,48 +43,110 @@ public class LoginViewModel : BaseViewModel {
         set => SetProperty(ref _isErrorVisible, value);
     }
 
+    public string ErrorVisible {
+        get {
+            if (IsErrorVisible) {
+                return "visible";
+            }
+
+            return "collapsed";
+        }
+    }
+
+    private bool _isLogin;
+    public bool IsLogin {
+        get => _isLogin;
+        set => SetProperty(ref _isLogin, value, () => {
+            RaisePropertyChanged(() => VisibilityLogin);
+            RaisePropertyChanged(() => VisibilityRemember);
+        });
+    }
+
+    public string VisibilityLogin {
+        get {
+            if (IsLogin) {
+                return "collapsed";
+            }
+
+            return "visible";
+        }
+    }
+
+    public string VisibilityRemember {
+        get {
+            if (IsLogin) {
+                return "visible";
+            }
+
+            return "collapsed";
+        }
+    }
+
+    private string _rememberName;
+    public string RememberName {
+        get => _rememberName;
+        set => SetProperty(ref _rememberName, value);
+    }
+
+    #endregion
+
+    #region Commands
+
     public MvxCommand GoToSiteCommand { get; }
 
     public MvxAsyncCommand LoginCommand { get; }
 
-    private readonly IAuthService _authService;
-
-    private readonly AppConfigModel _config;
-
-    private readonly CurrentUserState _currentUserState;
+    public MvxCommand GoToLoginCommand { get; }
 
     #endregion
+
+    #region Constructor
 
     public LoginViewModel(IMvxNavigationService navigationService, AppConfigModel config, IAuthService authService, CurrentUserState state) : base(navigationService, config) {
         _authService = authService;
         _config = config;
-        _currentUserState = state;
+        _userState = state;
 
         GoToSiteCommand = new MvxCommand(GoToSite);
         LoginCommand = new MvxAsyncCommand(Login);
+        GoToLoginCommand = new MvxCommand(GoToLogin);
+
+        if (_userState.CurrentUser != null) {
+            IsLogin = true;
+            RememberName = _userState.CurrentUser.Name;
+        }
+    }
+
+    #endregion
+
+    public override void Prepare(Action afterLogin) {
+        _afterLogin = afterLogin;
     }
 
     private async Task Login() {
-        var loginData = new LoginModel { Email = Email, Password = Password };
+        if (!IsLogin) {
 
-        var user = await _authService.LoginAsync(loginData);
-        if (user is null) {
-            IsErrorVisible = true;
-            return;
+            var loginData = new LoginModel { Email = Email, Password = Password, IsLauncher = true };
+
+            var user = await _authService.LoginAsync(loginData);
+            if (user is null) {
+                IsErrorVisible = true;
+                return;
+            }
+
+            _userState.CurrentUser = user;
         }
 
-        _currentUserState.CurrentUser = user;
-
-        await _navigationService.Navigate<ServersViewModel>();
+        _afterLogin.Invoke();
+        await _navigationService.Close(this);
     }
+
+    private void GoToLogin() {
+        IsLogin = false;
+    }
+
 
     private void GoToSite() {
-        OpenBrowser(_config.ServerUrl);
-    }
-
-    private static void OpenBrowser(string url) {
-        try {
-            Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true });
-        } catch (Exception) { }
+        BrowserHelper.OpenBrowser(_config.ServerUrl);
     }
 }

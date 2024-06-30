@@ -1,0 +1,22 @@
+﻿using Core.States.Interfaces;
+using Models;
+using Services.Helper;
+
+namespace Core.States;
+
+public class ServersState : IServersState {
+    private List<ServerInfoModel> _servers = [];
+    public List<ServerInfoModel> Servers {
+        get => _servers;
+        set => _servers = value;
+    }
+
+    public void Update(ServerInfoModel server) {
+        var serverToUpdate = Servers.Find(x => x.Name == server.Name);
+        if (serverToUpdate != null) {
+            return;
+        }
+
+        ObjectHelper.UpdateProperties(serverToUpdate, server);
+    }
+}

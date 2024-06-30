@@ -1,0 +1,46 @@
+﻿<local:BaseInputEvents
+    x:Class="Launcher.Views.Components.ImageInputPass"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:Launcher.Views.Components.Base"
+    mc:Ignorable="d" 
+    d:DesignHeight="50" d:DesignWidth="300">
+    <Border x:Name="Border" Style="{ StaticResource InputBorder }" d:Background="White">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="40"></ColumnDefinition>
+                <ColumnDefinition Width="1"></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <Image
+                d:Source="/Resources/lock.png"
+                Source="{ Binding Path=ImagePath, RelativeSource={ RelativeSource AncestorType=UserControl }}"
+                Width="30"
+                Height="30"/>
+            </Grid>
+
+            <Grid Grid.Column="1">
+                <Border x:Name="Strip"
+                    Style="{ StaticResource InputBorder }"/>
+            </Grid>
+
+            <Grid Grid.Column="2"
+              MouseEnter="OverMouse"
+              MouseLeave="LeaveMouse">
+                <PasswordBox VerticalAlignment="Center"
+                     x:Name="passwordBox"
+                     PasswordChanged="PasswordChange"
+                     FontSize="16"
+                     GotFocus="Focus"
+                     LostFocus="UnFocus"
+                     Background="Transparent"
+                     BorderThickness="0"/>
+            </Grid>
+        </Grid>
+    </Border>
+</local:BaseInputEvents>

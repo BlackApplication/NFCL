@@ -13,6 +13,10 @@
         <Setter Property="CornerRadius" Value="15" />
     </Style>
 
+    <Style TargetType="Border" x:Key="BorderRounding30">
+        <Setter Property="CornerRadius" Value="30" />
+    </Style>
+
     <Style TargetType="Border" x:Key="InputBorder" BasedOn="{ StaticResource BorderRounding5 }">
         <Setter Property="BorderBrush" Value="Black"></Setter>
         <Setter Property="BorderThickness" Value="1"></Setter>
@@ -28,13 +32,13 @@
         </Setter>
     </Style>
 
-    <Style TargetType="Grid" x:Key="GridErrorVisibleToggle">
-        <Setter Property="Visibility" Value="Collapsed" />
-        <Style.Triggers>
-            <DataTrigger Binding="{ Binding IsErrorVisible }" Value="True">
-                <Setter Property="Visibility" Value="Visible"/>
-            </DataTrigger>
-        </Style.Triggers>
+    <Style TargetType="Border" x:Key="WelcomeBackground" BasedOn="{ StaticResource BorderRounding10 }">
+        <Setter Property="Background">
+            <Setter.Value>
+                <ImageBrush ImageSource="pack://application:,,,/Resources/welcome-background.png"
+                Stretch="UniformToFill" />
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style TargetType="Button" x:Key="CommonButtonStyle">
