@@ -7,14 +7,14 @@ public static class SecureStorageHelper {
     public static void SaveData(string key, string data) {
         var encryptedData = Protect(Encoding.UTF8.GetBytes(data));
 
-        File.WriteAllBytes(GetFilePath(key), encryptedData);
+        File.WriteAllBytes(PathHelper.GetGameFilePath(key), encryptedData);
     }
 
     public static string LoadData(string key) {
-        if (!File.Exists(GetFilePath(key)))
+        if (!File.Exists(PathHelper.GetGameFilePath(key)))
             return string.Empty;
 
-        var encryptedData = File.ReadAllBytes(GetFilePath(key));
+        var encryptedData = File.ReadAllBytes(PathHelper.GetGameFilePath(key));
         var decryptedData = Unprotect(encryptedData);
         return Encoding.UTF8.GetString(decryptedData);
     }

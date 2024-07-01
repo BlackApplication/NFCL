@@ -24,8 +24,6 @@ public class AuthService : IAuthService {
             return null;
         }
 
-        _httpService.SaveCookieToStorage();
-
         return JsonConvert.DeserializeObject<CurrentUserModel>(jsonResult);
     }
 }

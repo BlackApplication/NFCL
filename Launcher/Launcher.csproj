@@ -6,6 +6,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+	<PublishSingleFile>true</PublishSingleFile>
+	<SelfContained>true</SelfContained>
+	<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,9 +17,11 @@
     <None Remove="Resources\email.png" />
     <None Remove="Resources\favicon.ico" />
     <None Remove="Resources\invalid.png" />
+    <None Remove="Resources\list.png" />
     <None Remove="Resources\lock.png" />
     <None Remove="Resources\main-background.jpg" />
     <None Remove="Resources\Servers\Proxima.png" />
+    <None Remove="Resources\Servers\servers-background.jpg" />
     <None Remove="Resources\settings.png" />
     <None Remove="Resources\user-avatar.png" />
     <None Remove="Resources\welcome-background.png" />
@@ -40,9 +45,11 @@
     <Resource Include="Resources\email.png" />
     <Resource Include="Resources\favicon.ico" />
     <Resource Include="Resources\invalid.png" />
+    <Resource Include="Resources\list.png" />
     <Resource Include="Resources\lock.png" />
     <Resource Include="Resources\main-background.jpg" />
-    <Resource Include="Resources\Servers\Proxima.png" />
+    <Resource Include="Resources\Servers\proxima.png" />
+    <Resource Include="Resources\Servers\servers-background.jpg" />
     <Resource Include="Resources\settings.png" />
     <Resource Include="Resources\user-avatar.png" />
     <Resource Include="Resources\welcome-background.png" />

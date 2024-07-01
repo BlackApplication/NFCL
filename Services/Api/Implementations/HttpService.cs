@@ -23,6 +23,7 @@ public class HttpService : IHttpService {
 
     public async Task<string> GetAsync(string url) {
         var responce = await _httpClient.GetAsync(_startUrl + "/api/" + url);
+        SaveCookieToStorage();
 
         return await responce.Content.ReadAsStringAsync();
     }
@@ -32,6 +33,7 @@ public class HttpService : IHttpService {
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
         var responce = await _httpClient.PostAsync(_startUrl + "/api/" + url, content);
+        SaveCookieToStorage();
 
         return await responce.Content.ReadAsStringAsync();
     }
@@ -41,19 +43,21 @@ public class HttpService : IHttpService {
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
         var responce = await _httpClient.PutAsync(_startUrl + "/api/" + url, content);
+        SaveCookieToStorage();
 
         return await responce.Content.ReadAsStringAsync();
     }
 
     public async Task<string> DeleteAsync(string url) {
         var responce = await _httpClient.DeleteAsync(_startUrl + "/api/" + url);
+        SaveCookieToStorage();
 
         return await responce.Content.ReadAsStringAsync();
     }
 
     #region Helpers
 
-    public void SaveCookieToStorage() {
+    private void SaveCookieToStorage() {
         var cookies = _cookieContainer.GetAllCookies();
         var cookieList = new List<string>();
 
@@ -65,7 +69,7 @@ public class HttpService : IHttpService {
         SecureStorageHelper.SaveData("cookies", serializedCookies);
     }
 
-    public void LoadCookiesFromStorage() {
+    private void LoadCookiesFromStorage() {
         var serializedCookies = SecureStorageHelper.LoadData("cookies");
         if (string.IsNullOrEmpty(serializedCookies)) {
             return;

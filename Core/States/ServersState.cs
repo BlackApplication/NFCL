@@ -5,6 +5,12 @@ using Services.Helper;
 namespace Core.States;
 
 public class ServersState : IServersState {
+    private string _currentServerName = string.Empty;
+    public string CurrentServerName {
+        get => _currentServerName;
+        set => _currentServerName = value;
+    }
+
     private List<ServerInfoModel> _servers = [];
     public List<ServerInfoModel> Servers {
         get => _servers;
@@ -18,5 +24,9 @@ public class ServersState : IServersState {
         }
 
         ObjectHelper.UpdateProperties(serverToUpdate, server);
+    }
+
+    public ServerInfoModel? GetCurrentServer() {
+        return Servers.Find(x => x.Name == CurrentServerName) ?? null;
     }
 }
