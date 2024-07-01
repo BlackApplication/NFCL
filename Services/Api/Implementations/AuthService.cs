@@ -1,14 +1,21 @@
 ﻿using Models.Api;
 using Newtonsoft.Json;
-using Services.Interfaces;
+using Services.Api.Interfaces;
 
-namespace Services.Implementations;
+namespace Services.Api.Implementations;
 
 public class AuthService : IAuthService {
     private readonly IHttpService _httpService;
 
     public AuthService(IHttpService httpService) {
         _httpService = httpService;
+
+    }
+
+    public async Task<CurrentUserModel> GetCurrentUserAsync() {
+        var jsonResult = await _httpService.GetAsync("User/GetCurrent");
+
+        return JsonConvert.DeserializeObject<CurrentUserModel>(jsonResult);
     }
 
     public async Task<CurrentUserModel?> LoginAsync(LoginModel data) {
@@ -16,6 +23,8 @@ public class AuthService : IAuthService {
         if (jsonResult == "Invalid credentials!") {
             return null;
         }
+
+        _httpService.SaveCookieToStorage();
 
         return JsonConvert.DeserializeObject<CurrentUserModel>(jsonResult);
     }

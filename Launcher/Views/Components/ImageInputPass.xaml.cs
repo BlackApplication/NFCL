@@ -1,20 +1,27 @@
-﻿using System.Windows;
-using System.Windows.Controls;
+﻿using Launcher.Views.Components.Base;
+using System.Windows;
 using System.Windows.Data;
 
 namespace Launcher.Views.Components;
 
-public partial class BindablePasswordBox : UserControl {
+public partial class ImageInputPass : BaseInputEvents {
+    public string ImagePath {
+        get => (string)GetValue(ImagePathDependency);
+        set => SetValue(ImagePathDependency, value);
+    }
+
+    public static readonly DependencyProperty ImagePathDependency =
+        DependencyProperty.Register("ImagePath", typeof(string), typeof(ImageInputPass), new PropertyMetadata(string.Empty));
 
     private bool _isPasswordChanging;
 
     public static readonly DependencyProperty PasswordProperty =
-        DependencyProperty.Register("Password", typeof(string), typeof(BindablePasswordBox),
+        DependencyProperty.Register("Password", typeof(string), typeof(ImageInputPass),
             new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                 PasswordPropertyChanged, null, false, UpdateSourceTrigger.PropertyChanged));
 
     private static void PasswordPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-        if (d is BindablePasswordBox passwordBox) {
+        if (d is ImageInputPass passwordBox) {
             passwordBox.UpdatePassword();
         }
     }
@@ -24,8 +31,10 @@ public partial class BindablePasswordBox : UserControl {
         set { SetValue(PasswordProperty, value); }
     }
 
-    public BindablePasswordBox() {
+    public ImageInputPass() {
         InitializeComponent();
+        border = Border;
+        strip = Strip;
     }
 
     private void UpdatePassword() {

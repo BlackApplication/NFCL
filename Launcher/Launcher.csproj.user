@@ -2,24 +2,42 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup />
   <ItemGroup>
-    <Compile Update="Views\Components\BindablePasswordBox.xaml.cs">
+    <Compile Update="Views\Components\ImageInput.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\Pages\LoginView.xaml.cs">
+    <Compile Update="Views\Components\ImageInputPass.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\Pages\ServersView.xaml.cs">
+    <Compile Update="Views\Components\PageFooter.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Components\PageHeader.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Pages\Dashboard.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Windows\LoginWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Views\Components\BindablePasswordBox.xaml">
+    <Page Update="Views\Components\ImageInput.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Views\Pages\LoginView.xaml">
+    <Page Update="Views\Components\ImageInputPass.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Views\Pages\ServersView.xaml">
+    <Page Update="Views\Components\PageFooter.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Components\PageHeader.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Pages\Dashboard.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Windows\LoginWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

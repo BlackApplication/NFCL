@@ -3,4 +3,5 @@
 public class CurrentUserModel {
     public string Name { get; set; } = string.Empty;
     public long RegistrationTime { get; set; }
+    public Guid ClientToken { get; set; }
 }
