@@ -71,18 +71,25 @@ public class WelcomeViewModel : BaseViewModel, INotifyPropertyChanged {
 
         UpdateLoadText("Попытка входа...");
         await TryToGetRememberUser();
-        await OpenLoginWindowAsync(() => {
-            Task.Run(() => {
-                UpdateLoadText("Вход успешный!");
-                _navigationService.Navigate<DashboardViewModel>();
-            });
-        });
+
+        if (_userState.CurrentUser != null) {
+            AfterLoginAction();
+        } else {
+            await OpenLoginWindowAsync(AfterLoginAction);
+        }
     }
 
     private async Task TryToGetRememberUser() {
         var user = await _authService.GetCurrentUserAsync();
 
         _userState.CurrentUser = user;
+    }
+
+    private void AfterLoginAction() {
+        Task.Run(() => {
+            UpdateLoadText("Вход успешный!");
+            _navigationService.Navigate<DashboardViewModel>();
+        });
     }
 
     private async Task OpenLoginWindowAsync(Action action) {
