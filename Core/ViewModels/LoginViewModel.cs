@@ -3,6 +3,7 @@ using Models.Api;
 using Models.Json;
 using MvvmCross.Commands;
 using MvvmCross.Navigation;
+using Serilog;
 using Services.Api.Interfaces;
 using Services.Helper;
 using Services.States;
@@ -23,7 +24,7 @@ public class LoginViewModel : BaseViewModel<Action> {
 
     #region Variables
 
-    private Action _afterLogin;
+    private Action _afterLogin = null!;
 
     private string _email = "";
     public string Email {
@@ -40,7 +41,7 @@ public class LoginViewModel : BaseViewModel<Action> {
     private bool _isErrorVisible;
     public bool IsErrorVisible {
         get => _isErrorVisible;
-        set => SetProperty(ref _isErrorVisible, value);
+        set => SetProperty(ref _isErrorVisible, value, () => RaisePropertyChanged(() => ErrorVisible));
     }
 
     public string ErrorVisible {
@@ -65,7 +66,7 @@ public class LoginViewModel : BaseViewModel<Action> {
 
     #region Constructor
 
-    public LoginViewModel(IMvxNavigationService navigationService, AppConfigModel config, IAuthService authService, CurrentUserState state) : base(navigationService, config) {
+    public LoginViewModel(IMvxNavigationService navigationService, AppConfigModel config, IAuthService authService, CurrentUserState state, ILogger logger) : base(navigationService, config, logger) {
         _authService = authService;
         _config = config;
         _userState = state;

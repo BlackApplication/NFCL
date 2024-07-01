@@ -14,6 +14,9 @@
     <Compile Update="Views\Components\PageHeader.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\Components\ProgressBar.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\Pages\Dashboard.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -32,6 +35,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\Components\PageHeader.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Components\ProgressBar.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\Pages\Dashboard.xaml">

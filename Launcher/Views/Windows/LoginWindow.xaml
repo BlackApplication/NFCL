@@ -48,7 +48,7 @@
 
             <components:ImageInputPass Grid.Row="2" Password="{ Binding Password }" ImagePath="/Resources/lock.png" Height="40" Width="300"/>
 
-            <Grid Grid.Row="3" Width="300">
+            <Grid Grid.Row="3" Width="300" Visibility="{ Binding ErrorVisible }">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="42"></ColumnDefinition>
                     <ColumnDefinition></ColumnDefinition>

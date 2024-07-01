@@ -6,11 +6,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:vm="clr-namespace:Core.ViewModels;assembly=Core"
-    xmlns:local="clr-namespace:Launcher.Views.Components"
+    xmlns:components="clr-namespace:Launcher.Views.Components"
     d:DataContext="{ d:DesignInstance Type=vm:DashboardViewModel }"
     mc:Ignorable="d"
     Height="600" Width="1050">
-    
+
     <Grid>
         <Border Style="{ StaticResource BorderRounding10 }" Background="#171717"/>
 
@@ -32,17 +32,61 @@
             </Grid>
 
             <Grid Grid.Column="1">
-                <Border Width="300" Height="140" Style="{ StaticResource BorderRounding15 }" BorderThickness="2" BorderBrush="Black" Background="#666666" Opacity="0.9">
-                    <Button Style="{ StaticResource CommonButtonStyle }" Background="Transparent" BorderThickness="0">
+                
+                <Border Width="300" Height="140" Style="{ StaticResource BorderRounding15 }" Visibility="{ Binding ServerChooseButtonVisible }" d:Visibility="Collapsed" BorderThickness="2" BorderBrush="Black" Background="#666666" Opacity="0.9">
+                    <Button Style="{ StaticResource CommonButtonStyle }" Background="Transparent" BorderThickness="0" Command="{ Binding GoToServerListCommand }">
                         <TextBlock Text="Выберите мир" TextWrapping="Wrap" FontSize="48" Width="250" TextAlignment="Center" Foreground="White"/>
                     </Button>
                 </Border>
+
+                <Grid Visibility="{ Binding ServerChooseVisible }" d:Visibility="Collapsed">
+                    <Image Source="/Resources/Servers/servers-background.jpg" Height="530"/>
+                    <Grid Width="110" Height="120" Margin="0, 0, 360, 30">
+                        <TextBlock Text="Proxima" FontSize="28" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center"/>
+                        <Button Background="Transparent" Style="{ StaticResource CommonButtonStyle }" BorderThickness="0" Command="{ Binding ChooseProximaCommand }"/>
+                    </Grid>
+                </Grid>
+
+                <Grid Visibility="{ Binding ServerVisible }" d:Visibility="Visible">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="120"/>
+                        <RowDefinition/>
+                        <RowDefinition Height="120"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0">
+                        <TextBlock Text="{ Binding CurrentServerName }" d:Text="proxima" Foreground="White" FontSize="64" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0, 0, 0, 30"/>
+                        <TextBlock Height="20" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0, 70, 0, 0">
+                            <Run Text="Текущий онлайн:"/>
+                            <Run Text="{ Binding CurrentServerUsers }" d:Text="10"/>
+                            <Run Text="/"/>
+                            <Run Text="{ Binding CurrentServerMaxUsers }" d:Text="50"/>
+                        </TextBlock>
+                    </Grid>
+
+                    <TextBlock Grid.Row="1" Text="@Description" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="24" Foreground="White"/>
+
+                    <Grid Grid.Row="2" Visibility="{ Binding PlayButtonVisible }" d:Visibility="Collapsed">
+                        <Border Background="#3DA000" Style="{ StaticResource BorderRounding30 }" Width="200" Height="65" Margin="0, 0, 0, 40">
+                            <Button Style="{ StaticResource CommonButtonStyle }" BorderThickness="0" Background="Transparent" Command="{ Binding PlayCommand }">
+                                <TextBlock Text="Играть" Foreground="White" FontSize="40" Margin="0, 0, 0, 10"/>
+                            </Button>
+                        </Border>
+
+                        <Button Width="60" Height="50" Style="{ StaticResource CommonButtonStyle }" BorderThickness="0" Background="Transparent" Margin="608,15,282,55" Command="{ Binding GoToServerListCommand }">
+                            <Image Width="70" Height="70" Source="/Resources/list.png" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </Button>
+                    </Grid>
+
+                    <components:ProgressBar Grid.Row="2" Visibility="{ Binding ProgresBarVisible }" LoadText="{ Binding LoadText }" Percent="{ Binding LoadPrecent }" Height="40" Width="800" Margin="0, 0, 0, 40"/>
+                </Grid>
+                
             </Grid>
 
         </Grid>
 
-        <local:PageHeader Height="40" VerticalAlignment="Top" Width="1050"/>
-        <local:PageFooter Version="{ Binding CurentAppVersion }" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0, 0, 10, 5"/>
+        <components:PageHeader Height="40" VerticalAlignment="Top" Width="1050"/>
+        <components:PageFooter Version="{ Binding CurentAppVersion }" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0, 0, 10, 5"/>
     </Grid>
-    
+
 </views:MvxWpfView>

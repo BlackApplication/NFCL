@@ -8,11 +8,21 @@ using Services.Api.Implementations;
 using Services.Api.Interfaces;
 using Services.Helper;
 using Services.States;
+using System.Text;
 
 namespace Core;
 
 public class App : MvxApplication {
     public override void Initialize() {
+        RegisterSingletons();
+        RegisterApiServices();
+
+        Console.OutputEncoding = Encoding.UTF8;
+
+        RegisterAppStart<WelcomeViewModel>();
+    }
+
+    private void RegisterSingletons() {
         var config = FileHelper.ReadJsonFile<AppConfigModel>("Configuration/config.json");
         Mvx.IoCProvider?.RegisterSingleton(config);
         var currentUserState = new CurrentUserState();
@@ -22,10 +32,10 @@ public class App : MvxApplication {
         var logger = Log.Logger;
         Mvx.IoCProvider?.RegisterSingleton(logger);
         Mvx.IoCProvider?.RegisterSingleton<IHttpService>(new HttpService(config));
+    }
 
+    private void RegisterApiServices() {
         Mvx.IoCProvider?.RegisterType<IAuthService, AuthService>();
         Mvx.IoCProvider?.RegisterType<ILauncherApi, LauncherApi>();
-
-        RegisterAppStart<WelcomeViewModel>();
     }
 }
