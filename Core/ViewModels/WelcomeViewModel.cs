@@ -7,7 +7,6 @@ using Services;
 using Services.Api.Interfaces;
 using Services.Helper;
 using Services.States;
-using System.ComponentModel;
 
 namespace Core.ViewModels;
 
@@ -123,7 +122,7 @@ public class WelcomeViewModel : BaseViewModel {
 
     private static void CheckGameDirectory() {
         var gamePath = PathHelper.GetGamePath();
-        var cachePath = PathHelper.GetCachePath();
+        var cachePath = PathHelper.GetGameFilePath("cache.json");
 
         if (!Directory.Exists(gamePath)) {
             Directory.CreateDirectory(gamePath);

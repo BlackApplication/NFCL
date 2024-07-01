@@ -23,7 +23,7 @@ public class App : MvxApplication {
     }
 
     private void RegisterSingletons() {
-        var config = FileHelper.ReadJsonFile<AppConfigModel>("Configuration/config.json");
+        var config = AddConfiguration();
         Mvx.IoCProvider?.RegisterSingleton(config);
         var currentUserState = new CurrentUserState();
         Mvx.IoCProvider?.RegisterSingleton(currentUserState);
@@ -37,5 +37,13 @@ public class App : MvxApplication {
     private void RegisterApiServices() {
         Mvx.IoCProvider?.RegisterType<IAuthService, AuthService>();
         Mvx.IoCProvider?.RegisterType<ILauncherApi, LauncherApi>();
+    }
+
+    private AppConfigModel AddConfiguration() {
+        return new AppConfigModel {
+            Version = "0.0.2",
+            GameDirectory = ".nightfallcraft",
+            ServerUrl = "https://localhost:5050"
+        };
     }
 }
