@@ -53,41 +53,6 @@ public class LoginViewModel : BaseViewModel<Action> {
         }
     }
 
-    private bool _isLogin;
-    public bool IsLogin {
-        get => _isLogin;
-        set => SetProperty(ref _isLogin, value, () => {
-            RaisePropertyChanged(() => VisibilityLogin);
-            RaisePropertyChanged(() => VisibilityRemember);
-        });
-    }
-
-    public string VisibilityLogin {
-        get {
-            if (IsLogin) {
-                return "collapsed";
-            }
-
-            return "visible";
-        }
-    }
-
-    public string VisibilityRemember {
-        get {
-            if (IsLogin) {
-                return "visible";
-            }
-
-            return "collapsed";
-        }
-    }
-
-    private string _rememberName;
-    public string RememberName {
-        get => _rememberName;
-        set => SetProperty(ref _rememberName, value);
-    }
-
     #endregion
 
     #region Commands
@@ -95,8 +60,6 @@ public class LoginViewModel : BaseViewModel<Action> {
     public MvxCommand GoToSiteCommand { get; }
 
     public MvxAsyncCommand LoginCommand { get; }
-
-    public MvxCommand GoToLoginCommand { get; }
 
     #endregion
 
@@ -109,12 +72,6 @@ public class LoginViewModel : BaseViewModel<Action> {
 
         GoToSiteCommand = new MvxCommand(GoToSite);
         LoginCommand = new MvxAsyncCommand(Login);
-        GoToLoginCommand = new MvxCommand(GoToLogin);
-
-        if (_userState.CurrentUser != null) {
-            IsLogin = true;
-            RememberName = _userState.CurrentUser.Name;
-        }
     }
 
     #endregion
@@ -124,25 +81,18 @@ public class LoginViewModel : BaseViewModel<Action> {
     }
 
     private async Task Login() {
-        if (!IsLogin) {
+        var loginData = new LoginModel { Email = Email, Password = Password, IsLauncher = true };
 
-            var loginData = new LoginModel { Email = Email, Password = Password, IsLauncher = true };
-
-            var user = await _authService.LoginAsync(loginData);
-            if (user is null) {
-                IsErrorVisible = true;
-                return;
-            }
-
-            _userState.CurrentUser = user;
+        var user = await _authService.LoginAsync(loginData);
+        if (user is null) {
+            IsErrorVisible = true;
+            return;
         }
+
+        _userState.CurrentUser = user;
 
         _afterLogin.Invoke();
         await _navigationService.Close(this);
-    }
-
-    private void GoToLogin() {
-        IsLogin = false;
     }
 
 

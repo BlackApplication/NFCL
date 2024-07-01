@@ -31,8 +31,6 @@
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
 
-            
-
             <Border Grid.RowSpan="6"
                 Background="#ACACAC"
                 Opacity="0.8"
@@ -46,74 +44,36 @@
                        Foreground="Black"/>
             </Grid>
 
-            <Grid Grid.Row="1" Grid.RowSpan="4" Visibility="{ Binding VisibilityLogin }" d:Visibility="Collapsed">
-                <Grid.RowDefinitions>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                </Grid.RowDefinitions>
-                
-                <components:ImageInput Grid.Row="0" InputText="{ Binding Email }" ImagePath="/Resources/email.png" Height="40" Width="300"/>
+            <components:ImageInput Grid.Row="1" InputText="{ Binding Email }" ImagePath="/Resources/email.png" Height="40" Width="300"/>
 
-                <components:ImageInputPass Grid.Row="1" Password="{ Binding Password }" ImagePath="/Resources/lock.png" Height="40" Width="300"/>
+            <components:ImageInputPass Grid.Row="2" Password="{ Binding Password }" ImagePath="/Resources/lock.png" Height="40" Width="300"/>
 
-                <Grid x:Name="SuperGrid" Grid.Row="2" Width="300" Visibility="{ Binding ErrorVisible }" d:Visibility="Visible">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="42"></ColumnDefinition>
-                        <ColumnDefinition></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
+            <Grid Grid.Row="3" Width="300">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="42"></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
 
-                    <Image Grid.Column="0"
-                           Source="pack://application:,,,/Resources/invalid.png"
-                           Width="20"
-                           Height="20" Margin="11,19,11,25"/>
+                <Image Grid.Column="0" Source="pack://application:,,,/Resources/invalid.png" Width="20" Height="20" Margin="11,19,11,25"/>
 
-                    <TextBlock Grid.Column="1"
-                               Foreground="#E15454"
-                               Text="Такого пользователя несуществует или пароль неверный!" 
-                               VerticalAlignment="Top"
-                               FontSize="14"
-                               TextWrapping="Wrap" Margin="0,10,0,0"/>
-                </Grid>
-
-                <Grid Grid.Row="3">
-                    <Grid Width="200" HorizontalAlignment="Left" Margin="5, 0, 0, 0">
-                        <Grid.RowDefinitions>
-                            <RowDefinition></RowDefinition>
-                            <RowDefinition></RowDefinition>
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Grid.Row="0" VerticalAlignment="Bottom" Margin="18, 0, 0, 0" FontSize="18" Foreground="White">Нет аккаунта?</TextBlock>
-                        <Button Grid.Row="1" Command="{ Binding GoToSiteCommand }" VerticalAlignment="Top" Background="Transparent" BorderThickness="0" Style="{ StaticResource CommonButtonStyle }" FontSize="18" Foreground="White">
-                            <TextBlock TextDecorations="Underline" Text="зарегестрироваться"/>
-                        </Button>
-                    </Grid>
-                </Grid>
+                <TextBlock Grid.Column="1" Foreground="#E15454" Text="Такого пользователя несуществует или пароль неверный!"  VerticalAlignment="Top" FontSize="14" TextWrapping="Wrap" Margin="0,10,0,0"/>
             </Grid>
 
-            <Grid Grid.Row="1" Grid.RowSpan="4" Visibility="{ Binding VisibilityRemember }" d:Visibility="Visible">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="90"></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                </Grid.RowDefinitions>
+            <Grid Grid.Row="4">
+                <Grid Width="200" HorizontalAlignment="Left" Margin="5, 0, 0, 0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
 
-                <TextBlock Text="Это вы?" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-
-                <Border Grid.Row="1" Style="{ StaticResource BorderRounding10 }" Background="White" Height="50" Width="300" Opacity="0.5" VerticalAlignment="Top"/>
-
-                <Border Grid.Row="1" VerticalAlignment="Top" Height="50" Width="300">
-                    <TextBlock Text="{ Binding RememberName }" d:Text="Test" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="26"/>
-                </Border>
+                    <TextBlock Grid.Row="0" VerticalAlignment="Bottom" Margin="18, 0, 0, 0" FontSize="18" Foreground="White">Нет аккаунта?</TextBlock>
+                    <Button Grid.Row="1" Command="{ Binding GoToSiteCommand }" VerticalAlignment="Top" Background="Transparent" BorderThickness="0" Style="{ StaticResource CommonButtonStyle }" FontSize="18" Foreground="White">
+                        <TextBlock TextDecorations="Underline" Text="зарегестрироваться"/>
+                    </Button>
+                </Grid>
             </Grid>
 
             <Grid Grid.Row="5">
-                <Border Style="{ StaticResource BorderRounding15 }" Background="#3DA000" Width="90" Height="40" HorizontalAlignment="Left" Margin="33,11,0,15" Visibility="{ Binding VisibilityRemember }">
-                    <Button Style="{ StaticResource CommonButtonStyle }" Background="Transparent" BorderThickness="0" Margin="0, 0, 0, 5" Command="{ Binding GoToLoginCommand }">
-                        <TextBlock Text="новый" FontSize="24" Foreground="White"/>
-                    </Button>
-                </Border>
-
                 <Border Style="{ StaticResource BorderRounding15 }" Background="#BF61D7" Width="90" Height="40" Margin="225,10,35,15">
                     <Button Style="{ StaticResource CommonButtonStyle }" Background="Transparent" BorderThickness="0" Margin="0, 0, 0, 5" Command="{ Binding LoginCommand }">
                         <TextBlock Text="войти" FontSize="24" Foreground="White"/>
