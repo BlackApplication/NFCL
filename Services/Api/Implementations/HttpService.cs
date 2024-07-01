@@ -87,7 +87,11 @@ public class HttpService : IHttpService {
                 Expires = DateTime.Parse(time)
             };
 
-            var isExpired = ((DateTimeOffset)cookieObj.Expires).ToUnixTimeSeconds() > DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var expiredTime = new DateTimeOffset(cookieObj.Expires, TimeSpan.Zero);
+            var expiredTimeOnSecounds = expiredTime.ToUnixTimeSeconds();
+            var currentTimeOnSecounds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+            var isExpired = currentTimeOnSecounds > expiredTimeOnSecounds;
             if (!isExpired) {
                 _cookieContainer.Add(cookieObj);
             }
