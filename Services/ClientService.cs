@@ -1,15 +1,19 @@
 ﻿using CmlLib.Core;
 using CmlLib.Core.Auth;
 using Models;
+using Serilog;
 
 namespace Services;
 
 public class ClientService {
 
+    private readonly ILogger _logger;
+
     private readonly string _gamePath;
 
-    public ClientService(string gamePath) {
+    public ClientService(string gamePath, ILogger logger) {
         _gamePath = gamePath;
+        _logger = logger;
     }
 
     public async void Launch(string clientName, ClientLaunchSettings setting) {
@@ -25,15 +29,15 @@ public class ClientService {
         game.Start();
     }
 
-    private static void AddLogs(CMLauncher minecraftClient) {
+    private void AddLogs(CMLauncher minecraftClient) {
         minecraftClient.FileChanged += (e) => {
-            Console.WriteLine("FileKind: " + e.FileKind.ToString());
-            Console.WriteLine("FileName: " + e.FileName);
-            Console.WriteLine("ProgressedFileCount: " + e.ProgressedFileCount);
-            Console.WriteLine("TotalFileCount: " + e.TotalFileCount);
+            _logger.Information("FileKind: " + e.FileKind.ToString());
+            _logger.Information("FileName: " + e.FileName);
+            _logger.Information("ProgressedFileCount: " + e.ProgressedFileCount);
+            _logger.Information("TotalFileCount: " + e.TotalFileCount);
         };
         minecraftClient.ProgressChanged += (s, e) => {
-            Console.WriteLine("{0}%", e.ProgressPercentage);
+            _logger.Information("{0}%", e.ProgressPercentage);
         };
     }
 
