@@ -4,7 +4,6 @@ using Models.Json;
 using MvvmCross.Commands;
 using MvvmCross.Navigation;
 using Serilog;
-using Services.Helper;
 
 namespace Core.ViewModels;
 
@@ -22,7 +21,7 @@ public class DashboardViewModel : BaseViewModel {
         set => SetProperty(ref _isServerList, value, () => RaiseAllPropertiesChanged());
     }
 
-    public string CurrentServerName => TextHelper.CapitalText(_serversState.CurrentServerName);
+    public string CurrentServerName => _serversState.CurrentServerName;
 
     public int CurrentServerUsers { get; set; }
 
@@ -82,7 +81,8 @@ public class DashboardViewModel : BaseViewModel {
     public bool IsLaunched {
         get => _isLaunched;
         set => SetProperty(ref _isLaunched, value, () => {
-            
+            RaisePropertyChanged(() => ProgresBarVisible);
+            RaisePropertyChanged(() => PlayButtonVisible);
         });
     }
 
@@ -116,33 +116,31 @@ public class DashboardViewModel : BaseViewModel {
         GoToServerListCommand = new MvxCommand(GoToServerList);
         ChooseProximaCommand = new MvxCommand(ChooseProximaServer);
         PlayCommand = new MvxCommand(Play);
+
+        LogInfo("[Dashboard] Открытие");
     }
 
     #endregion
 
     private void Play() {
+        LogInfo("[Dashboard] Старт игры на сервере: {0}", CurrentServerName);
         IsLaunched = true;
-        RaisePropertyChanged(() => ProgresBarVisible);
-        RaisePropertyChanged(() => PlayButtonVisible);
         LoadPrecent = 60;
         LoadText = "Загрузка...";
-        RaisePropertyChanged(() => LoadPrecent);
-        RaisePropertyChanged(() => LoadText);
     }
 
     private void GoToServerList() {
+        LogInfo("[Dashboard] Переход к списку серверов");
         _serversState.CurrentServerName = string.Empty;
         IsServerList = true;
-
-        RaiseAllPropertiesChanged();
     }
 
     private void ChooseProximaServer() {
-        _serversState.CurrentServerName = "proxima";
-        IsServerList = false;
+        _serversState.CurrentServerName = "Proxima";
         CurrentServerUsers = _serversState.GetCurrentServer()?.CurrentUsers ?? 0;
         CurrentServerMaxUsers = _serversState.GetCurrentServer()?.MaxUsers ?? 0;
+        IsServerList = false;
 
-        RaiseAllPropertiesChanged();
+        LogInfo("[Dashboard] Выбран сервер: {0}", CurrentServerName);
     }
 }

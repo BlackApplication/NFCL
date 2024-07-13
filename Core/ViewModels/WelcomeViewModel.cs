@@ -53,6 +53,7 @@ public class WelcomeViewModel : BaseViewModel {
     #endregion
 
     public override void ViewAppeared() {
+        LogInfo("[Welcome] Начало инициализации...");
         Task.Run(() => InitialLoad());
     }
 
@@ -61,6 +62,7 @@ public class WelcomeViewModel : BaseViewModel {
         var isActual = await CheckIfLaucherVersionActualAsync();
         if (!isActual) {
             UpdateLauncher();
+            return;
         }
 
         UpdateLoadText("Проверка файлов...");
@@ -81,33 +83,33 @@ public class WelcomeViewModel : BaseViewModel {
 
     private async Task TryToGetRememberUser() {
         var user = await _authService.GetCurrentUserAsync();
-        LogInfo("[Welcome] Get remember user {0}", user == null ? "failed" : "success");
+        LogInfo("[Welcome] Получение запомненого пользователя {0}", user == null ? "неудачно" : "успешно");
 
         _userState.CurrentUser = user;
     }
 
     private void AfterLoginAction() {
         Task.Run(() => {
-            LogInfo("[Welcome] Login like: {0}", _userState.CurrentUser?.Name);
+            LogInfo("[Welcome] Вход как {0}", _userState.CurrentUser?.Name);
             UpdateLoadText("Вход успешный!");
             _navigationService.Navigate<DashboardViewModel>();
         });
     }
 
     private async Task OpenLoginWindowAsync(Action action) {
-        LogInfo("[Welcome] Authorize");
+        LogInfo("[Welcome] Вход");
         await _navigationService.Navigate<LoginViewModel, Action>(action);
     }
 
     private void UpdateLoadText(string text) {
         LoadText = text;
-        LogInfo("[Welcome] Load: {0}", text);
+        LogInfo("[Welcome] Инициализация: {0}", text);
         Thread.Sleep(500);
     }
 
     private async Task GetServersListAsync() {
         var servers = await _laucnherService.GetServersListAsync();
-        LogInfo("[Welcome] Get servers: {0}", servers.Count);
+        LogInfo("[Welcome] Получена информация о серверах: {0}", servers.Count);
 
         _serversState.Servers = servers;
     }
@@ -115,7 +117,7 @@ public class WelcomeViewModel : BaseViewModel {
     private async Task<bool> CheckIfLaucherVersionActualAsync() {
         var serverVersion = await _laucnherService.GetActualVersionAsync();
         var isActual = serverVersion == CurentAppVersion;
-        LogInfo("[Welcome] Current version is {0}", isActual ? "actual" : "outdated");
+        LogInfo("[Welcome] Текущая версия {0}", isActual ? "актуальна" : "устарела");
 
         return isActual;
     }
@@ -133,7 +135,7 @@ public class WelcomeViewModel : BaseViewModel {
         }
     }
 
-    private void UpdateLauncher() {
-       // TODO update
+    private async void UpdateLauncher() {
+        await _laucnherService.UpdateLaucnherAsync();
     }
 }

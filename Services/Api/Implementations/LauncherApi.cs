@@ -20,4 +20,9 @@ public class LauncherApi : ILauncherApi {
 
         return JsonConvert.DeserializeObject<ServersList>(result) ?? throw new Exception("Get servers list error!");
     }
+
+    public async Task DownloadActualLauncher(string destinationPath) {
+
+        await _httpService.DownloadFileAsync("Launcher/Download", destinationPath);
+    }
 }

@@ -18,12 +18,12 @@ public class HttpService : IHttpService {
         _httpClient = new HttpClient(new HttpClientHandler { UseCookies = true, CookieContainer = _cookieContainer });
         _startUrl = config.ServerUrl;
 
-        LoadCookiesFromStorage();
+        CookieHelper.LoadCookiesFromStorage(_cookieContainer);
     }
 
     public async Task<string> GetAsync(string url) {
         var responce = await _httpClient.GetAsync(_startUrl + "/api/" + url);
-        SaveCookieToStorage();
+        CookieHelper.SaveCookieToStorage(_cookieContainer);
 
         return await responce.Content.ReadAsStringAsync();
     }
@@ -33,7 +33,7 @@ public class HttpService : IHttpService {
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
         var responce = await _httpClient.PostAsync(_startUrl + "/api/" + url, content);
-        SaveCookieToStorage();
+        CookieHelper.SaveCookieToStorage(_cookieContainer);
 
         return await responce.Content.ReadAsStringAsync();
     }
@@ -43,64 +43,25 @@ public class HttpService : IHttpService {
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
         var responce = await _httpClient.PutAsync(_startUrl + "/api/" + url, content);
-        SaveCookieToStorage();
+        CookieHelper.SaveCookieToStorage(_cookieContainer);
 
         return await responce.Content.ReadAsStringAsync();
     }
 
     public async Task<string> DeleteAsync(string url) {
         var responce = await _httpClient.DeleteAsync(_startUrl + "/api/" + url);
-        SaveCookieToStorage();
+        CookieHelper.SaveCookieToStorage(_cookieContainer);
 
         return await responce.Content.ReadAsStringAsync();
     }
 
-    #region Helpers
+    public async Task DownloadFileAsync(string url, string destinationPath) {
+        var request = new HttpRequestMessage(HttpMethod.Get, _startUrl + "/api/" + url);
 
-    private void SaveCookieToStorage() {
-        var cookies = _cookieContainer.GetAllCookies();
-        var cookieList = new List<string>();
+        using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+        response.EnsureSuccessStatusCode();
 
-        foreach (Cookie cookie in cookies) {
-            cookieList.Add($"{cookie.Name}={cookie.Value}; Domain={cookie.Domain}; Path={cookie.Path}; Expires={cookie.Expires}");
-        }
-
-        var serializedCookies = JsonConvert.SerializeObject(cookieList);
-        SecureStorageHelper.SaveData("cookies", serializedCookies);
+        using var fileStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None);
+        await response.Content.CopyToAsync(fileStream);
     }
-
-    private void LoadCookiesFromStorage() {
-        var serializedCookies = SecureStorageHelper.LoadData("cookies");
-        if (string.IsNullOrEmpty(serializedCookies)) {
-            return;
-        }
-
-        var cookieList = JsonConvert.DeserializeObject<List<string>>(serializedCookies);
-        if (cookieList == null) {
-            return;
-        }
-
-        foreach (var cookie in cookieList) {
-            var cookieParts = cookie.Split(';');
-            var nameValue = cookieParts[0].Split('=');
-            var path = cookieParts[2].Split('=')[1];
-            var domain = cookieParts[1].Split('=')[1];
-            var time = cookieParts[3].Split('=')[1];
-
-            var cookieObj = new Cookie(nameValue[0], nameValue[1], path, domain) {
-                Expires = DateTime.Parse(time)
-            };
-
-            var expiredTime = new DateTimeOffset(cookieObj.Expires, TimeSpan.Zero);
-            var expiredTimeOnSecounds = expiredTime.ToUnixTimeSeconds();
-            var currentTimeOnSecounds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-
-            var isExpired = currentTimeOnSecounds > expiredTimeOnSecounds;
-            if (!isExpired) {
-                _cookieContainer.Add(cookieObj);
-            }
-        }
-    }
-
-    #endregion
 }

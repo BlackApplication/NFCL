@@ -1,11 +1,13 @@
 ﻿using Models;
-using Models.Enums;
 using Services.Api.Interfaces;
+using System.Diagnostics;
 
 namespace Services;
 
 public class LauncherService {
     private readonly string _laucnherDirectory;
+    private readonly string _tempLauncherName = "Temp_Launcher.exe";
+
     private readonly ILauncherApi _launcherApi;
 
     public LauncherService(string laucnherDirectory, ILauncherApi launcherApi) {
@@ -23,11 +25,23 @@ public class LauncherService {
         return [.. model.Servers];
     }
 
-    public Task UpdateLaucnher(SystemType system, string laucnherName, string currentVersion) {
-        throw new NotImplementedException();
+    public async Task UpdateLaucnherAsync() {
+        await _launcherApi.DownloadActualLauncher(_tempLauncherName);
+        ReplaceAndRestartApplication();
+
+        Environment.Exit(0);
     }
 
-    public void LauncherReplaceAndRestart(SystemType system, string laucnherName) {
-        throw new NotImplementedException();
+    private void ReplaceAndRestartApplication() {
+        var oldFilePath = "Launcher.exe";
+
+        var currentProcessId = Environment.ProcessId;
+        var startInfo = new ProcessStartInfo {
+            FileName = "cmd.exe",
+            Arguments = $"/C timeout 2 & taskkill /PID {currentProcessId} & move /Y \"{_tempLauncherName}\" \"{oldFilePath}\" & \"{oldFilePath}\"",
+            WindowStyle = ProcessWindowStyle.Hidden
+        };
+
+        Process.Start(startInfo);
     }
 }

@@ -6,7 +6,6 @@ using MvvmCross.ViewModels;
 using Serilog;
 using Services.Api.Implementations;
 using Services.Api.Interfaces;
-using Services.Helper;
 using Services.States;
 using System.Text;
 
