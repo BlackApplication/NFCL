@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 
 namespace Launcher.Views.Components;
 
@@ -15,6 +14,15 @@ public partial class ProgressBar : UserControl, INotifyPropertyChanged {
         DependencyProperty.Register("LoadText", typeof(string), typeof(ProgressBar),
             new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
+    public int TextSize {
+        get => (int)GetValue(TextSizeDependency);
+        set => SetValue(TextSizeDependency, value);
+    }
+
+    public static readonly DependencyProperty TextSizeDependency =
+        DependencyProperty.Register("TextSize", typeof(int), typeof(ProgressBar),
+            new FrameworkPropertyMetadata(1, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+
     public int Percent {
         get => (int)GetValue(PercentDependency);
         set => SetValue(PercentDependency, value);
@@ -22,7 +30,13 @@ public partial class ProgressBar : UserControl, INotifyPropertyChanged {
 
     public static readonly DependencyProperty PercentDependency =
         DependencyProperty.Register("Percent", typeof(int), typeof(ProgressBar),
-            new FrameworkPropertyMetadata(1, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+            new FrameworkPropertyMetadata(1, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnPercentChanged));
+
+    private static void OnPercentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+        if (d is ProgressBar progressBar) {
+            progressBar.UpdateProgressWidth();
+        }
+    }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

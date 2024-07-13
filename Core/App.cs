@@ -30,7 +30,7 @@ public class App : MvxApplication {
         Mvx.IoCProvider?.RegisterSingleton(ServersState);
         var logger = Log.Logger;
         Mvx.IoCProvider?.RegisterSingleton(logger);
-        Mvx.IoCProvider?.RegisterSingleton<IHttpService>(new HttpService(config));
+        Mvx.IoCProvider?.RegisterSingleton<IHttpService>(new HttpService(config, logger));
     }
 
     private void RegisterApiServices() {

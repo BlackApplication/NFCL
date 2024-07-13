@@ -39,12 +39,34 @@ public class WelcomeViewModel : BaseViewModel {
         set => SetProperty(ref _loadText, value, () => RaisePropertyChanged(() => LoadTextColor));
     }
 
+    private bool _isUpdating;
+    public bool IsUpdating {
+        get => _isUpdating;
+        set => SetProperty(ref _isUpdating, value, () => RaisePropertyChanged(() => UpdateBarVisible));
+    }
+
+    public string UpdateBarVisible {
+        get {
+            if (IsUpdating) {
+                return "visible";
+            }
+
+            return "collapsed";
+        }
+    }
+
+    private int _loadPrecent;
+    public int LoadPrecent {
+        get => _loadPrecent;
+        set => SetProperty(ref _loadPrecent, value);
+    }
+
     #endregion
 
     #region Constructor
 
     public WelcomeViewModel(IMvxNavigationService navigationService, IAuthService authService, ILauncherApi launcherApi, AppConfigModel config, ServersState serversState, CurrentUserState userState, ILogger logger) : base(navigationService, config, logger) {
-        _laucnherService = new LauncherService(Directory.GetCurrentDirectory(), launcherApi);
+        _laucnherService = new LauncherService(Directory.GetCurrentDirectory(), launcherApi, logger);
         _serversState = serversState;
         _authService = authService;
         _userState = userState;
@@ -136,6 +158,12 @@ public class WelcomeViewModel : BaseViewModel {
     }
 
     private async void UpdateLauncher() {
+        IsUpdating = true;
+        _laucnherService.UpdateProgressChanged += UpdateProgressChanged;
         await _laucnherService.UpdateLaucnherAsync();
+    }
+
+    private void UpdateProgressChanged(int percent) {
+        LoadPrecent = percent;
     }
 }

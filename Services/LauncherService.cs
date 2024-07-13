@@ -1,18 +1,22 @@
 ﻿using Models;
+using Serilog;
 using Services.Api.Interfaces;
 using System.Diagnostics;
 
 namespace Services;
 
 public class LauncherService {
-    private readonly string _laucnherDirectory;
+    public event Action<int> UpdateProgressChanged = null!;
+    private readonly string _launcherDirectory;
     private readonly string _tempLauncherName = "Temp_Launcher.exe";
 
     private readonly ILauncherApi _launcherApi;
+    private readonly ILogger _logger;
 
-    public LauncherService(string laucnherDirectory, ILauncherApi launcherApi) {
-        _laucnherDirectory = laucnherDirectory;
+    public LauncherService(string laucnherDirectory, ILauncherApi launcherApi, ILogger logger) {
+        _launcherDirectory = laucnherDirectory;
         _launcherApi = launcherApi;
+        _logger = logger;
     }
 
     public async Task<string> GetActualVersionAsync() {
@@ -26,7 +30,9 @@ public class LauncherService {
     }
 
     public async Task UpdateLaucnherAsync() {
-        await _launcherApi.DownloadActualLauncher(_tempLauncherName);
+        _logger.Information("[Update] Скачивание новой версии");
+        await _launcherApi.DownloadActualLauncher(_tempLauncherName, UpdateProgressChanged);
+        _logger.Information("[Update] Обновление лаунчера на новый и перезапуск");
         ReplaceAndRestartApplication();
 
         Environment.Exit(0);
