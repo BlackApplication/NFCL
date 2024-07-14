@@ -1,9 +1,12 @@
 ﻿using Core.States;
 using Core.ViewModels.Base;
+using Models;
 using Models.Json;
 using MvvmCross.Commands;
 using MvvmCross.Navigation;
 using Serilog;
+using Services;
+using Services.States;
 
 namespace Core.ViewModels;
 
@@ -12,6 +15,9 @@ public class DashboardViewModel : BaseViewModel {
     #region Services
 
     private readonly ServersState _serversState;
+    private readonly LauncherService _launcherService;
+    private readonly ClientService _clientService;
+    private readonly CurrentUserState _currentUserState;
 
     #endregion
 
@@ -104,29 +110,36 @@ public class DashboardViewModel : BaseViewModel {
 
     public MvxCommand ChooseProximaCommand { get; }
 
-    public MvxCommand PlayCommand { get; }
+    public MvxAsyncCommand PlayCommand { get; }
 
     #endregion
 
     #region Constructor
 
-    public DashboardViewModel(IMvxNavigationService navigationService, AppConfigModel config, ILogger logger, ServersState serversState) : base(navigationService, config, logger) {
+    public DashboardViewModel(IMvxNavigationService navigationService, AppConfigModel config, ILogger logger, ServersState serversState, LauncherService launcherService, ClientService clientService, CurrentUserState currentUserState) : base(navigationService, config, logger) {
         _serversState = serversState;
+        _launcherService = launcherService;
+        _clientService = clientService;
+        _currentUserState = currentUserState;
 
         GoToServerListCommand = new MvxCommand(GoToServerList);
         ChooseProximaCommand = new MvxCommand(ChooseProximaServer);
-        PlayCommand = new MvxCommand(Play);
+        PlayCommand = new MvxAsyncCommand(PlayAsync);
 
         LogInfo("[Dashboard] Открытие");
     }
 
     #endregion
 
-    private void Play() {
-        LogInfo("[Dashboard] Старт игры на сервере: {0}", CurrentServerName);
+    private async Task PlayAsync() {
+        LogInfo("[Start] Старт игры на сервере: {0}", CurrentServerName);
         IsLaunched = true;
-        LoadPrecent = 60;
+        LoadPrecent = 0;
         LoadText = "Загрузка...";
+
+        await PrepareGameAsync();
+
+        StartGame();
     }
 
     private void GoToServerList() {
@@ -142,5 +155,29 @@ public class DashboardViewModel : BaseViewModel {
         IsServerList = false;
 
         LogInfo("[Dashboard] Выбран сервер: {0}", CurrentServerName);
+    }
+
+    private async Task PrepareGameAsync() {
+        LogInfo("[Start] Подготовка файлов игры");
+        await _launcherService.CheckServerFilesAsync(_serversState.CurrentServerName, DownloadProgressChanged);
+        LogInfo("[Start] Все файлы проверены");
+    }
+
+    private void DownloadProgressChanged(int percent, string? downloadObject) {
+        LoadPrecent = percent;
+        LoadText = $"Загрузка клиента: {downloadObject} ...";
+    }
+
+    private void StartGame() {
+        LogInfo("[Start] Запуск игры");
+        LoadPrecent = 100;
+        LoadText = "Запуск";
+        var settings = new ClientLaunchSettings {
+            CurrentUser = _currentUserState.CurrentUser ?? throw new ArgumentNullException("User is empty"),
+            MaxRamMb = 4096,
+            MinRamMb = 2048
+        };
+
+        _clientService.Launch(_serversState.CurrentServerName, settings);
     }
 }

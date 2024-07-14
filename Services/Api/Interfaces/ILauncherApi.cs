@@ -3,7 +3,9 @@
 namespace Services.Api.Interfaces;
 
 public interface ILauncherApi {
-    public Task<string> GetActualVersion();
-    public Task<ServersList> GetServersList();
-    Task DownloadActualLauncher(string destinationPath, Action<int> UpdateProgressChanged);
+    Task<string> GetActualVersionAsync();
+    Task<ServersList> GetServersListAsync();
+    Task DownloadActualLauncherAsync(string destinationPath, Action<int, string?> updateChangedAction);
+    Task<ServerHashes> GetFilesHashesAsync(string server);
+    Task DownloadClientFile(string server, string path, string parentPath = "", Action<int, string>? downloadAction = null);
 }

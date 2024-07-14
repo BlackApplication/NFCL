@@ -11,18 +11,27 @@ public class LauncherApi : ILauncherApi {
         _httpService = httpService;
     }
 
-    public Task<string> GetActualVersion() {
-        return _httpService.GetAsync("Launcher/GetActualVersion");
+    public async Task<string> GetActualVersionAsync() {
+        return await _httpService.GetAsync("Launcher/GetActualVersion");
     }
 
-    public async Task<ServersList> GetServersList() {
+    public async Task<ServersList> GetServersListAsync() {
         var result = await _httpService.GetAsync("Launcher/GetServersList");
 
         return JsonConvert.DeserializeObject<ServersList>(result) ?? throw new Exception("Get servers list error!");
     }
 
-    public async Task DownloadActualLauncher(string destinationPath, Action<int> UpdateProgressChanged) {
+    public async Task DownloadActualLauncherAsync(string path, Action<int, string> updateChangedAction) {
+        await _httpService.DownloadFileAsync("Launcher/Download", path, "", updateChangedAction);
+    }
 
-        await _httpService.DownloadFileAsync("Launcher/Download", destinationPath, UpdateProgressChanged);
+    public async Task<ServerHashes> GetFilesHashesAsync(string server) {
+        var result =  await _httpService.GetAsync($"Launcher/GetFilesHashes/{server}");
+
+        return JsonConvert.DeserializeObject<ServerHashes>(result) ?? throw new Exception("Get servers list error!");
+    }
+
+    public async Task DownloadClientFile(string server, string path, string parentPath = "", Action<int, string>? downloadAction = null) {
+        await _httpService.DownloadFileAsync($"Launcher/DownloadClientFile/{server}/{Uri.EscapeDataString(path)}", path, parentPath, downloadAction);
     }
 }

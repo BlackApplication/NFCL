@@ -6,5 +6,5 @@ public interface IHttpService
     Task<string> PostAsync<T>(string url, T data);
     Task<string> PutAsync<T>(string url, T data);
     Task<string> DeleteAsync(string url);
-    Task DownloadFileAsync(string url, string destinationPath, Action<int>? ProgressChanged);
+    Task DownloadFileAsync(string url, string path, string parentPath = "", Action<int, string>? downloadProgressChangedAction = null);
 }

@@ -4,6 +4,7 @@ using Models.Json;
 using MvvmCross;
 using MvvmCross.ViewModels;
 using Serilog;
+using Services;
 using Services.Api.Implementations;
 using Services.Api.Interfaces;
 using Services.States;
@@ -13,8 +14,8 @@ namespace Core;
 
 public class App : MvxApplication {
     public override void Initialize() {
-        RegisterSingletons();
         RegisterApiServices();
+        RegisterSingletons();
 
         Console.OutputEncoding = Encoding.UTF8;
 
@@ -31,6 +32,11 @@ public class App : MvxApplication {
         var logger = Log.Logger;
         Mvx.IoCProvider?.RegisterSingleton(logger);
         Mvx.IoCProvider?.RegisterSingleton<IHttpService>(new HttpService(config, logger));
+        var client = new ClientService(logger);
+        Mvx.IoCProvider?.RegisterSingleton(client);
+        var launcherApi = Mvx.IoCProvider?.Resolve<ILauncherApi>() ?? throw new ArgumentNullException("Api not initialize");
+        var launcherService = new LauncherService(config.GameDirectory, launcherApi, logger);
+        Mvx.IoCProvider?.RegisterSingleton(launcherService);
     }
 
     private void RegisterApiServices() {
@@ -40,7 +46,7 @@ public class App : MvxApplication {
 
     private AppConfigModel AddConfiguration() {
         return new AppConfigModel {
-            Version = "0.0.2",
+            Version = "0.0.3",
             GameDirectory = ".nightfallcraft",
             ServerUrl = "https://localhost:5050"
         };

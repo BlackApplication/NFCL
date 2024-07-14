@@ -12,7 +12,13 @@ public partial class ProgressBar : UserControl, INotifyPropertyChanged {
 
     public static readonly DependencyProperty LoadTextDependency =
         DependencyProperty.Register("LoadText", typeof(string), typeof(ProgressBar),
-            new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+            new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnLoadTextChanged));
+
+    private static void OnLoadTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+        if (d is ProgressBar progressBar) {
+            progressBar.UpdateLoadText();
+        }
+    }
 
     public int TextSize {
         get => (int)GetValue(TextSizeDependency);
@@ -57,6 +63,10 @@ public partial class ProgressBar : UserControl, INotifyPropertyChanged {
 
     private void UpdateProgressWidth() {
         OnPropertyChanged(nameof(ProgressWidth));
+    }
+
+    private void UpdateLoadText() {
+        OnPropertyChanged(nameof(LoadText));
     }
 
     private void OnPropertyChanged(string propertyName) {

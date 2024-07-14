@@ -1,7 +1,6 @@
 ﻿using Models.Json;
 using Newtonsoft.Json;
 using Serilog;
-using Serilog.Core;
 using Services.Api.Interfaces;
 using Services.Helper;
 using System.Net;
@@ -59,16 +58,16 @@ public class HttpService : IHttpService {
         return await responce.Content.ReadAsStringAsync();
     }
 
-    public async Task DownloadFileAsync(string url, string destinationPath, Action<int>? ProgressChanged) {
+    public async Task DownloadFileAsync(string url, string path, string parentPath = "", Action<int, string>? downloadProgressChangedAction = null) {
         var request = new HttpRequestMessage(HttpMethod.Get, _startUrl + "/api/" + url);
 
         using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-        response.EnsureSuccessStatusCode();
 
         var totalBytes = response.Content.Headers.ContentLength;
         var buffer = new byte[8192];
         var bytesRead = 0L;
 
+        var destinationPath = Path.Combine(parentPath, path);
         using var fileStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None);
         using var contentStream = await response.Content.ReadAsStreamAsync();
         while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0) {
@@ -76,7 +75,9 @@ public class HttpService : IHttpService {
 
             if (totalBytes.HasValue) {
                 var percentComplete = (double)fileStream.Length / totalBytes.Value * 100;
-                ProgressChanged?.Invoke((int)percentComplete);
+                var objectDownloaded = path.Split('\\')[0];
+
+                downloadProgressChangedAction?.Invoke((int)percentComplete, objectDownloaded);
             }
         }
     }

@@ -65,8 +65,8 @@ public class WelcomeViewModel : BaseViewModel {
 
     #region Constructor
 
-    public WelcomeViewModel(IMvxNavigationService navigationService, IAuthService authService, ILauncherApi launcherApi, AppConfigModel config, ServersState serversState, CurrentUserState userState, ILogger logger) : base(navigationService, config, logger) {
-        _laucnherService = new LauncherService(Directory.GetCurrentDirectory(), launcherApi, logger);
+    public WelcomeViewModel(IMvxNavigationService navigationService, IAuthService authService, ILauncherApi launcherApi, AppConfigModel config, ServersState serversState, CurrentUserState userState, ILogger logger, LauncherService launcherService) : base(navigationService, config, logger) {
+        _laucnherService = launcherService;
         _serversState = serversState;
         _authService = authService;
         _userState = userState;
@@ -159,11 +159,11 @@ public class WelcomeViewModel : BaseViewModel {
 
     private async void UpdateLauncher() {
         IsUpdating = true;
-        _laucnherService.UpdateProgressChanged += UpdateProgressChanged;
-        await _laucnherService.UpdateLaucnherAsync();
+        var updateChangedAction = UpdateProgressChanged;
+        await _laucnherService.UpdateLaucnherAsync(updateChangedAction);
     }
 
-    private void UpdateProgressChanged(int percent) {
+    private void UpdateProgressChanged(int percent, string? _) {
         LoadPrecent = percent;
     }
 }

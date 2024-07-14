@@ -2,6 +2,7 @@
 using CmlLib.Core.Auth;
 using Models;
 using Serilog;
+using Services.Helper;
 
 namespace Services;
 
@@ -9,20 +10,18 @@ public class ClientService {
 
     private readonly ILogger _logger;
 
-    private readonly string _gamePath;
-
-    public ClientService(string gamePath, ILogger logger) {
-        _gamePath = gamePath;
+    public ClientService(ILogger logger) {
         _logger = logger;
     }
 
     public async void Launch(string clientName, ClientLaunchSettings setting) {
-        var path = new MinecraftPath(_gamePath);
+        var gamePath = PathHelper.GetGamePath();
+        var path = new MinecraftPath(gamePath);
         var minecraftClient = new CMLauncher(path);
 
         var options = ProcessSettings(setting);
 
-        var game = await minecraftClient.CreateProcessAsync(clientName, options, checkAndDownload: false);
+        var game = await minecraftClient.CreateProcessAsync(clientName.ToLower(), options, checkAndDownload: false);
 
         AddLogs(minecraftClient);
 
