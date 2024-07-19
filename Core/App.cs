@@ -48,9 +48,9 @@ public class App : MvxApplication {
     
     private static AppConfigModel AddConfiguration() {
         return new AppConfigModel {
-            Version = "0.0.5",
+            Version = "0.0.6",
             GameDirectory = ".nightfallcraft",
-            ServerUrl = "https://localhost:5050"
+            ServerUrl = "https://nightfallcraft.com"
         };
     }
 }
