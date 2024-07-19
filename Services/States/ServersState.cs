@@ -1,8 +1,8 @@
-﻿using Core.States.Interfaces;
-using Models;
+﻿using Models;
 using Services.Helper;
+using Services.States.Interfaces;
 
-namespace Core.States;
+namespace Services.States;
 
 public class ServersState : IServersState {
     private string _currentServerName = string.Empty;

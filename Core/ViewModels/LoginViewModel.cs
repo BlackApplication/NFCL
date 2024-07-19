@@ -86,11 +86,13 @@ public class LoginViewModel : BaseViewModel<Action> {
 
         var user = await _authService.LoginAsync(loginData);
         if (user is null) {
+            LogInfo("[Login] Вход неверный");
             IsErrorVisible = true;
             return;
         }
 
         _userState.CurrentUser = user;
+        LogInfo("[Login] Вход успешен");
 
         _afterLogin.Invoke();
         await _navigationService.Close(this);
@@ -99,5 +101,6 @@ public class LoginViewModel : BaseViewModel<Action> {
 
     private void GoToSite() {
         BrowserHelper.OpenBrowser(_config.ServerUrl);
+        LogInfo("[Login] Переход на сайт");
     }
 }

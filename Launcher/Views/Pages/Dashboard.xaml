@@ -78,7 +78,7 @@
                         </Button>
                     </Grid>
 
-                    <components:ProgressBar Grid.Row="2" Visibility="{ Binding ProgresBarVisible }" LoadText="{ Binding LoadText }" Percent="{ Binding LoadPrecent }" Height="40" Width="800" Margin="0, 0, 0, 40"/>
+                    <components:ProgressBar Grid.Row="2" Visibility="{ Binding ProgresBarVisible }" LoadText="{ Binding LoadText }" Percent="{ Binding LoadPrecent }" TextSize="24" Height="40" Width="800" Margin="0, 0, 0, 40"/>
                 </Grid>
                 
             </Grid>

@@ -1,10 +1,12 @@
-﻿using Core.States;
-using Core.ViewModels.Base;
+﻿using Core.ViewModels.Base;
+using Models;
 using Models.Json;
 using MvvmCross.Commands;
 using MvvmCross.Navigation;
 using Serilog;
-using Services.Helper;
+using Services;
+using Services.States;
+using Services.States.Interfaces;
 
 namespace Core.ViewModels;
 
@@ -13,6 +15,10 @@ public class DashboardViewModel : BaseViewModel {
     #region Services
 
     private readonly ServersState _serversState;
+    private readonly LauncherService _launcherService;
+    private readonly ClientService _clientService;
+    private readonly CurrentUserState _currentUserState;
+    private readonly IDownloadState _downloadState;
 
     #endregion
 
@@ -22,7 +28,7 @@ public class DashboardViewModel : BaseViewModel {
         set => SetProperty(ref _isServerList, value, () => RaiseAllPropertiesChanged());
     }
 
-    public string CurrentServerName => TextHelper.CapitalText(_serversState.CurrentServerName);
+    public string CurrentServerName => _serversState.CurrentServerName;
 
     public int CurrentServerUsers { get; set; }
 
@@ -82,11 +88,12 @@ public class DashboardViewModel : BaseViewModel {
     public bool IsLaunched {
         get => _isLaunched;
         set => SetProperty(ref _isLaunched, value, () => {
-            
+            RaisePropertyChanged(() => ProgresBarVisible);
+            RaisePropertyChanged(() => PlayButtonVisible);
         });
     }
 
-    private string _loadText;
+    private string _loadText = "";
     public string LoadText {
         get => _loadText;
         set => SetProperty(ref _loadText, value);
@@ -104,45 +111,80 @@ public class DashboardViewModel : BaseViewModel {
 
     public MvxCommand ChooseProximaCommand { get; }
 
-    public MvxCommand PlayCommand { get; }
+    public MvxAsyncCommand PlayCommand { get; }
 
     #endregion
 
     #region Constructor
 
-    public DashboardViewModel(IMvxNavigationService navigationService, AppConfigModel config, ILogger logger, ServersState serversState) : base(navigationService, config, logger) {
+    public DashboardViewModel(IMvxNavigationService navigationService, AppConfigModel config, ILogger logger, ServersState serversState, LauncherService launcherService, ClientService clientService, CurrentUserState currentUserState, DownloadState downloadState) : base(navigationService, config, logger) {
         _serversState = serversState;
+        _launcherService = launcherService;
+        _clientService = clientService;
+        _currentUserState = currentUserState;
+        _downloadState = downloadState;
 
         GoToServerListCommand = new MvxCommand(GoToServerList);
         ChooseProximaCommand = new MvxCommand(ChooseProximaServer);
-        PlayCommand = new MvxCommand(Play);
+        PlayCommand = new MvxAsyncCommand(PlayAsync);
+
+        LogInfo("[Dashboard] Открытие");
     }
 
     #endregion
 
-    private void Play() {
+    private async Task PlayAsync() {
+        LogInfo("[Start] Старт игры на сервере: {0}", CurrentServerName);
         IsLaunched = true;
-        RaisePropertyChanged(() => ProgresBarVisible);
-        RaisePropertyChanged(() => PlayButtonVisible);
-        LoadPrecent = 60;
+        LoadPrecent = 0;
         LoadText = "Загрузка...";
-        RaisePropertyChanged(() => LoadPrecent);
-        RaisePropertyChanged(() => LoadText);
+
+        await PrepareGameAsync();
+
+        StartGame();
     }
 
     private void GoToServerList() {
+        LogInfo("[Dashboard] Переход к списку серверов");
         _serversState.CurrentServerName = string.Empty;
         IsServerList = true;
-
-        RaiseAllPropertiesChanged();
     }
 
     private void ChooseProximaServer() {
-        _serversState.CurrentServerName = "proxima";
-        IsServerList = false;
+        _serversState.CurrentServerName = "Proxima";
         CurrentServerUsers = _serversState.GetCurrentServer()?.CurrentUsers ?? 0;
         CurrentServerMaxUsers = _serversState.GetCurrentServer()?.MaxUsers ?? 0;
+        IsServerList = false;
 
-        RaiseAllPropertiesChanged();
+        LogInfo("[Dashboard] Выбран сервер: {0}", CurrentServerName);
+    }
+
+    private async Task PrepareGameAsync() {
+        var downloadHandler = DownloadProgressChanged;
+        _downloadState.OnChagePrecent += downloadHandler;
+
+        LogInfo("[Start] Подготовка файлов игры");
+        await _launcherService.CheckServerFilesAsync(_serversState.CurrentServerName);
+        LogInfo("[Start] Все файлы проверены");
+
+        _downloadState.OnChagePrecent -= downloadHandler;
+    }
+
+    private void DownloadProgressChanged() {
+        LoadPrecent = _downloadState.Precent();
+        LoadText = $"Загрузка {LoadPrecent} %";
+    }
+
+    private void StartGame() {
+        LogInfo("[Start] Запуск игры");
+        LoadPrecent = 100;
+        LoadText = "Запуск";
+        var settings = new ClientLaunchSettings {
+            CurrentUser = _currentUserState.CurrentUser ?? throw new ArgumentNullException("User is empty"),
+            MaxRamMb = 4096,
+            MinRamMb = 2048
+        };
+
+        _clientService.Launch(_serversState.CurrentServerName, settings);
     }
 }

@@ -16,7 +16,9 @@
         <Grid>
             <local:PageHeader Height="40" VerticalAlignment="Top" Width="400"/>
             <TextBlock VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="Black" TextAlignment="Center" FontSize="24" Margin="0,31,0,0" TextWrapping="Wrap" Text="Добро пожаловать на NightfallCraft!" Width="300"/>
-            <TextBlock VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="{ Binding LoadTextColor }" Width="300" Text="{ Binding LoadText }" Margin="0,266,0,0" TextAlignment="Center" FontSize="18"/>
+
+            <TextBlock VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="{ Binding LoadTextColor }" Width="300" Text="{ Binding LoadText }" d:Text="Загрузка..." d:Foreground="White" Margin="0,250,0,0" TextAlignment="Center" FontSize="18"/>
+            <local:ProgressBar Visibility="{ Binding UpdateBarVisible }" Width="350" Height="30" VerticalAlignment="Bottom" Margin="0, 0, 0, 24" TextSize="20" LoadText="Загрузка новой версии..." Percent="{ Binding LoadPrecent }"/>
         </Grid>
     </Border>
 

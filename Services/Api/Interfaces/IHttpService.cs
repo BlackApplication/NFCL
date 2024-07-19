@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-namespace Services.Api.Interfaces;
+﻿namespace Services.Api.Interfaces;
 
 public interface IHttpService
 {
@@ -8,4 +6,5 @@ public interface IHttpService
     Task<string> PostAsync<T>(string url, T data);
     Task<string> PutAsync<T>(string url, T data);
     Task<string> DeleteAsync(string url);
+    Task DownloadFileAsync(string url, string savePath);
 }
