@@ -84,7 +84,7 @@ public class LauncherService {
 
     private static List<string> GetMissingFiles(Dictionary<string, string> localFileHashes, List<FileHash> serverFileHashes, string parentPath = "") {
         return serverFileHashes
-            .Where(serverFile => !localFileHashes.TryGetValue(Path.Combine(parentPath, serverFile.Path), out var localHash) || localHash != serverFile.Hash)
+            .Where(serverFile => !localFileHashes.TryGetValue(Path.Combine(parentPath, serverFile.Path.Replace("/", "\\")), out var localHash) || localHash != serverFile.Hash)
             .Select(serverFile => serverFile.Path)
             .ToList();
     }
