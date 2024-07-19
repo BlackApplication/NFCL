@@ -10,10 +10,25 @@ public class FileHelper {
         return JsonConvert.DeserializeObject<T>(json) ?? throw new Exception("Bad json: " + path + " !");
     }
 
-    public static Dictionary<string, string> GetLocalFileHashes(string directoryPath) {
+    public static void CheckDirectoriesByFilePath(string filePath) {
+        var directoryPath = Path.GetDirectoryName(filePath);
+
+        CheckDirectoriesByPath(directoryPath ?? "");
+    }
+
+    public static void CheckDirectoriesByPath(string directoryPath) {
+        if (directoryPath != string.Empty && directoryPath != null) {
+            var fullPath = Path.Combine(PathHelper.GetGamePath(), directoryPath);
+
+            Directory.CreateDirectory(fullPath);
+        }
+    }
+
+    public static Dictionary<string, string> GetGameLocalFileHashes() {
         var fileHashes = new Dictionary<string, string>();
-        foreach (var filePath in Directory.GetFiles(directoryPath, "*", SearchOption.AllDirectories)) {
-            var relativePath = Path.GetRelativePath(directoryPath, filePath);
+        var gameDirectory = PathHelper.GetGamePath();
+        foreach (var filePath in Directory.GetFiles(gameDirectory, "*", SearchOption.AllDirectories)) {
+            var relativePath = Path.GetRelativePath(gameDirectory, filePath);
             var hash = ComputeHashFromFile(filePath);
             fileHashes[relativePath] = hash;
         }

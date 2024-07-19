@@ -1,5 +1,4 @@
-﻿using Core.States;
-using Core.ViewModels;
+﻿using Core.ViewModels;
 using Models.Json;
 using MvvmCross;
 using MvvmCross.ViewModels;
@@ -14,39 +13,42 @@ namespace Core;
 
 public class App : MvxApplication {
     public override void Initialize() {
+        var config = AddConfiguration();
         RegisterApiServices();
-        RegisterSingletons();
+        RegisterSingletons(config);
 
         Console.OutputEncoding = Encoding.UTF8;
 
         RegisterAppStart<WelcomeViewModel>();
     }
 
-    private void RegisterSingletons() {
-        var config = AddConfiguration();
-        Mvx.IoCProvider?.RegisterSingleton(config);
-        var currentUserState = new CurrentUserState();
-        Mvx.IoCProvider?.RegisterSingleton(currentUserState);
-        var ServersState = new ServersState();
-        Mvx.IoCProvider?.RegisterSingleton(ServersState);
-        var logger = Log.Logger;
-        Mvx.IoCProvider?.RegisterSingleton(logger);
-        Mvx.IoCProvider?.RegisterSingleton<IHttpService>(new HttpService(config, logger));
-        var client = new ClientService(logger);
-        Mvx.IoCProvider?.RegisterSingleton(client);
-        var launcherApi = Mvx.IoCProvider?.Resolve<ILauncherApi>() ?? throw new ArgumentNullException("Api not initialize");
-        var launcherService = new LauncherService(config.GameDirectory, launcherApi, logger);
-        Mvx.IoCProvider?.RegisterSingleton(launcherService);
-    }
-
-    private void RegisterApiServices() {
+    private static void RegisterApiServices() {
         Mvx.IoCProvider?.RegisterType<IAuthService, AuthService>();
         Mvx.IoCProvider?.RegisterType<ILauncherApi, LauncherApi>();
     }
 
-    private AppConfigModel AddConfiguration() {
+    private static void RegisterSingletons(AppConfigModel config) {
+        Mvx.IoCProvider?.RegisterSingleton(config);
+        var currentUserState = new CurrentUserState();
+        Mvx.IoCProvider?.RegisterSingleton(currentUserState);
+        var serversState = new ServersState();
+        Mvx.IoCProvider?.RegisterSingleton(serversState);
+        var downloadState = new DownloadState();
+        Mvx.IoCProvider?.RegisterSingleton(downloadState);
+
+        var logger = Log.Logger;
+        Mvx.IoCProvider?.RegisterSingleton(logger);
+        Mvx.IoCProvider?.RegisterSingleton<IHttpService>(new HttpService(config, logger, downloadState));
+        var client = new ClientService(logger);
+        Mvx.IoCProvider?.RegisterSingleton(client);
+        var launcherApi = Mvx.IoCProvider?.Resolve<ILauncherApi>() ?? throw new ArgumentNullException("Api not initialize");
+        var launcherService = new LauncherService(launcherApi, logger, downloadState);
+        Mvx.IoCProvider?.RegisterSingleton(launcherService);
+    }
+    
+    private static AppConfigModel AddConfiguration() {
         return new AppConfigModel {
-            Version = "0.0.3",
+            Version = "0.0.5",
             GameDirectory = ".nightfallcraft",
             ServerUrl = "https://localhost:5050"
         };

@@ -1,22 +1,26 @@
 ﻿using Models;
+using Models.Api;
+using Models.Enums;
 using Serilog;
 using Services.Api.Interfaces;
 using Services.Helper;
+using Services.States.Interfaces;
+using System.Data.SqlTypes;
 using System.Diagnostics;
 
 namespace Services;
 
 public class LauncherService {
-    private readonly string _launcherDirectory;
     private readonly string _tempLauncherName = "Temp_Launcher.exe";
 
     private readonly ILauncherApi _launcherApi;
     private readonly ILogger _logger;
+    private readonly IDownloadState _downloadState;
 
-    public LauncherService(string laucnherDirectory, ILauncherApi launcherApi, ILogger logger) {
-        _launcherDirectory = laucnherDirectory;
+    public LauncherService(ILauncherApi launcherApi, ILogger logger, IDownloadState downloadState) {
         _launcherApi = launcherApi;
         _logger = logger;
+        _downloadState = downloadState;
     }
 
     public async Task<string> GetActualVersionAsync() {
@@ -29,58 +33,74 @@ public class LauncherService {
         return [.. model.Servers];
     } 
 
-    public async Task UpdateLaucnherAsync(Action<int, string?> updateChangedAction) {
+    public async Task UpdateLauncherAsync() {
+        var launcherSize = await _launcherApi.GetSize();
+        _downloadState.Restart(launcherSize);
+
         _logger.Information("[Update] Скачивание новой версии");
-        await _launcherApi.DownloadActualLauncherAsync(_tempLauncherName, updateChangedAction);
+        await _launcherApi.DownloadActualLauncherAsync(_tempLauncherName);
+
         _logger.Information("[Update] Обновление лаунчера на новый и перезапуск");
         ReplaceAndRestartApplication();
 
         Environment.Exit(0);
     }
 
-    public async Task CheckServerFilesAsync(string server, Action<int, string> downloadAction) {
-        var serverHashesModel = await _launcherApi.GetFilesHashesAsync(server);
-        var serverFilesHashes = serverHashesModel.Files;
-        var gameDirectory = PathHelper.GetGamePath();
-        var localFilesHashes = FileHelper.GetLocalFileHashes(gameDirectory);
+    public async Task CheckServerFilesAsync(string server) {
+        var hashesModel = await _launcherApi.GetFilesHashesAsync(server);
 
-        _logger.Information("Проверка сломаных/недостающих файлов");
-        var missingFiles = GetMissingFiles(localFilesHashes, serverFilesHashes);
-        _logger.Information("Найдено {0} сломаных/недостающих файлов", missingFiles.Count);
-        var num = 0;
-        var test = (int per, string arg) => {
-            num++;
-            var percent = num * 100 / missingFiles.Count;
-            downloadAction?.Invoke(percent, arg);
-        };
+        var clientFilesHashes = hashesModel.Client;
+        var modsFilesHashes = hashesModel.Mods;
+        var localFilesHashes = FileHelper.GetGameLocalFileHashes();
 
-        if (missingFiles.Count > 0) {
-            await DownloadMissingFilesAsync(server, missingFiles, test);
+        _logger.Information("[Update] Проверка сломаных/недостающих файлов {0}", "клиента");
+        var missingClientFiles = GetMissingFiles(localFilesHashes, clientFilesHashes);
+        _logger.Information("[Update] Найдено {0} сломаных/недостающих файлов {1}", missingClientFiles.Count, "клиента");
+
+        _logger.Information("[Update] Проверка сломаных/недостающих файлов {0}", "модов");
+        var missingModsFiles = GetMissingFiles(localFilesHashes, modsFilesHashes, "mods");
+        _logger.Information("[Update] Найдено {0} сломаных/недостающих файлов {1}", missingModsFiles.Count, "модов");
+
+        var allMissingFiles = missingClientFiles.Concat(missingModsFiles).ToList();
+        var allFileHashes = clientFilesHashes.Concat(modsFilesHashes).ToList();
+        var allMissingFileHashes = allFileHashes.Where(x => allMissingFiles.Contains(x.Path)).ToList();
+        var allBytes = allMissingFileHashes.Select(x => x.Bytes).Sum();
+        _downloadState.Restart(allBytes);
+
+        if (missingClientFiles.Count != 0) {
+            _logger.Information("[Update] Скачиванием файлов {0}", "клиента");
+            await DownloadMissingFilesAsync(server, missingClientFiles, FolderType.Client);
+        }
+
+        if (missingModsFiles.Count != 0) {
+            _logger.Information("[Update] Скачиванием файлов {0}", "модов");
+            await DownloadMissingFilesAsync(server, missingModsFiles, FolderType.Mods);
+        }
+
+        if (missingClientFiles.Count == 0 && missingModsFiles.Count == 0) {
+            _logger.Information("[Update] Все файлы в порядке!");
         }
     }
 
-    private async Task DownloadMissingFilesAsync(string server, List<string> missingFiles, Action<int, string> downloadAction) {
+    private static List<string> GetMissingFiles(Dictionary<string, string> localFileHashes, List<FileHash> serverFileHashes, string parentPath = "") {
+        return serverFileHashes
+            .Where(serverFile => !localFileHashes.TryGetValue(Path.Combine(parentPath, serverFile.Path), out var localHash) || localHash != serverFile.Hash)
+            .Select(serverFile => serverFile.Path)
+            .ToList();
+    }
+
+    private async Task DownloadMissingFilesAsync(string server, List<string> missingFiles, FolderType folderType) {
         foreach (var file in missingFiles) {
-            var directoriesPath = Path.Combine(PathHelper.GetGamePath(), Path.GetDirectoryName(file));
-            if (directoriesPath != string.Empty && directoriesPath != null) {
-                Directory.CreateDirectory(directoriesPath);
-            }
+            FileHelper.CheckDirectoriesByFilePath(file);
 
-            _logger.Information("Загрузка файла: {0}", file);
-            await _launcherApi.DownloadClientFile(server, file, PathHelper.GetGamePath(), downloadAction);
-            _logger.Information("Файл загружен: {0}", file);
+            var serverFilePath = Path.Combine(folderType.ToString(), file);
+            var gamePath = PathHelper.GetGamePath();
+            var parentPath = folderType == FolderType.Client ? gamePath : Path.Combine(gamePath, "mods");
+
+            _logger.Information("[Download] Загрузка файла: {0}", file);
+            await _launcherApi.DownloadClientFile(server, serverFilePath, parentPath);
+            _logger.Information("[Download] Файл загружен: {0}", file);
         }
-    }
-
-    private static List<string> GetMissingFiles(Dictionary<string, string> localFileHashes, Dictionary<string, string> serverFileHashes) {
-        var missingFiles = new List<string>();
-        foreach (var serverFile in serverFileHashes) {
-            if (!localFileHashes.TryGetValue(serverFile.Key, out var localHash) || localHash != serverFile.Value) {
-                missingFiles.Add(serverFile.Key);
-            }
-        }
-
-        return missingFiles;
     }
 
     private void ReplaceAndRestartApplication() {

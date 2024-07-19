@@ -1,4 +1,4 @@
-﻿namespace Core.States.Interfaces;
+﻿namespace Services.States.Interfaces;
 
 public interface ICurrentUserState {
 

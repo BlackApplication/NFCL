@@ -1,5 +1,5 @@
-﻿using Core.States;
-using Core.ViewModels.Base;
+﻿using Core.ViewModels.Base;
+using Models;
 using Models.Json;
 using MvvmCross.Navigation;
 using Serilog;
@@ -7,6 +7,7 @@ using Services;
 using Services.Api.Interfaces;
 using Services.Helper;
 using Services.States;
+using Services.States.Interfaces;
 
 namespace Core.ViewModels;
 
@@ -15,6 +16,7 @@ public class WelcomeViewModel : BaseViewModel {
     #region Services
 
     private readonly IAuthService _authService;
+    private readonly IDownloadState _downloadState;
     private readonly LauncherService _laucnherService;
     private readonly ServersState _serversState;
     private readonly CurrentUserState _userState;
@@ -65,11 +67,12 @@ public class WelcomeViewModel : BaseViewModel {
 
     #region Constructor
 
-    public WelcomeViewModel(IMvxNavigationService navigationService, IAuthService authService, ILauncherApi launcherApi, AppConfigModel config, ServersState serversState, CurrentUserState userState, ILogger logger, LauncherService launcherService) : base(navigationService, config, logger) {
+    public WelcomeViewModel(IMvxNavigationService navigationService, IAuthService authService, ILauncherApi launcherApi, AppConfigModel config, ServersState serversState, CurrentUserState userState, ILogger logger, LauncherService launcherService, DownloadState downloadState) : base(navigationService, config, logger) {
         _laucnherService = launcherService;
         _serversState = serversState;
         _authService = authService;
         _userState = userState;
+        _downloadState = downloadState;
     }
 
     #endregion
@@ -80,15 +83,15 @@ public class WelcomeViewModel : BaseViewModel {
     }
 
     private async Task InitialLoad() {
+        UpdateLoadText("Проверка файлов...");
+        CheckGameDirectory();
+
         UpdateLoadText("Получение версии...");
         var isActual = await CheckIfLaucherVersionActualAsync();
         if (!isActual) {
             UpdateLauncher();
             return;
         }
-
-        UpdateLoadText("Проверка файлов...");
-        CheckGameDirectory();
 
         UpdateLoadText("Получение списка серверов...");
         await GetServersListAsync();
@@ -139,31 +142,35 @@ public class WelcomeViewModel : BaseViewModel {
     private async Task<bool> CheckIfLaucherVersionActualAsync() {
         var serverVersion = await _laucnherService.GetActualVersionAsync();
         var isActual = serverVersion == CurentAppVersion;
-        LogInfo("[Welcome] Текущая версия {0}", isActual ? "актуальна" : "устарела");
+        LogInfo("[Welcome] Текущая версия {0} {1}", CurentAppVersion, isActual ? "актуальна" : $"устарела. Актуальная версия {serverVersion}");
 
         return isActual;
     }
 
     private static void CheckGameDirectory() {
         var gamePath = PathHelper.GetGamePath();
-        var cachePath = PathHelper.GetGameFilePath("cache.json");
+        var modsPath = Path.Combine(gamePath, "mods");
 
         if (!Directory.Exists(gamePath)) {
             Directory.CreateDirectory(gamePath);
         }
 
-        if (!File.Exists(cachePath)) {
-            using (File.Create(cachePath)) { }
+        if (!Directory.Exists(modsPath)) {
+            Directory.CreateDirectory(modsPath);
         }
     }
 
     private async void UpdateLauncher() {
+        var updateHandler = UpdateProgressChanged;
+        _downloadState.OnChagePrecent += updateHandler;
+
         IsUpdating = true;
-        var updateChangedAction = UpdateProgressChanged;
-        await _laucnherService.UpdateLaucnherAsync(updateChangedAction);
+        await _laucnherService.UpdateLauncherAsync();
+
+        _downloadState.OnChagePrecent -= updateHandler;
     }
 
-    private void UpdateProgressChanged(int percent, string? _) {
-        LoadPrecent = percent;
+    private void UpdateProgressChanged() {
+        LoadPrecent = _downloadState.Precent();
     }
 }

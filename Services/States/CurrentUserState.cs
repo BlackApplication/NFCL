@@ -1,5 +1,5 @@
-﻿using Core.States.Interfaces;
-using Models.Api;
+﻿using Models.Api;
+using Services.States.Interfaces;
 
 namespace Services.States;
 

@@ -1,4 +1,6 @@
 ﻿namespace Models.Api;
+
 public class ServerHashes {
-    public Dictionary<string, string> Files { get; set; } = null!;
+    public List<FileHash> Client { get; set; } = null!;
+    public List<FileHash> Mods { get; set; } = null!;
 }

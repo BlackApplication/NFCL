@@ -1,6 +1,7 @@
 ﻿using Models.Api;
 using Newtonsoft.Json;
 using Services.Api.Interfaces;
+using System.Text.RegularExpressions;
 
 namespace Services.Api.Implementations;
 
@@ -21,8 +22,14 @@ public class LauncherApi : ILauncherApi {
         return JsonConvert.DeserializeObject<ServersList>(result) ?? throw new Exception("Get servers list error!");
     }
 
-    public async Task DownloadActualLauncherAsync(string path, Action<int, string> updateChangedAction) {
-        await _httpService.DownloadFileAsync("Launcher/Download", path, "", updateChangedAction);
+    public async Task<long> GetSize() {
+        var result = await _httpService.GetAsync("Launcher/GetSize");
+
+        return long.Parse(result);
+    }
+
+    public async Task DownloadActualLauncherAsync(string tempName) {
+        await _httpService.DownloadFileAsync("Launcher/Download", tempName);
     }
 
     public async Task<ServerHashes> GetFilesHashesAsync(string server) {
@@ -31,7 +38,10 @@ public class LauncherApi : ILauncherApi {
         return JsonConvert.DeserializeObject<ServerHashes>(result) ?? throw new Exception("Get servers list error!");
     }
 
-    public async Task DownloadClientFile(string server, string path, string parentPath = "", Action<int, string>? downloadAction = null) {
-        await _httpService.DownloadFileAsync($"Launcher/DownloadClientFile/{server}/{Uri.EscapeDataString(path)}", path, parentPath, downloadAction);
+    public async Task DownloadClientFile(string server, string path, string parentPath) {
+        var pathWithRemovedFolderType = Regex.Replace(path, @"^(Client|Mods)\\", "");
+        var downloadPath = Path.Combine(parentPath, pathWithRemovedFolderType);
+
+        await _httpService.DownloadFileAsync($"Launcher/DownloadClientFile/{server}/{Uri.EscapeDataString(path)}", downloadPath);
     }
 }

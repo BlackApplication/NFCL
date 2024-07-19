@@ -1,5 +1,4 @@
-﻿using Core.States;
-using Core.ViewModels.Base;
+﻿using Core.ViewModels.Base;
 using Models;
 using Models.Json;
 using MvvmCross.Commands;
@@ -7,6 +6,7 @@ using MvvmCross.Navigation;
 using Serilog;
 using Services;
 using Services.States;
+using Services.States.Interfaces;
 
 namespace Core.ViewModels;
 
@@ -18,6 +18,7 @@ public class DashboardViewModel : BaseViewModel {
     private readonly LauncherService _launcherService;
     private readonly ClientService _clientService;
     private readonly CurrentUserState _currentUserState;
+    private readonly IDownloadState _downloadState;
 
     #endregion
 
@@ -92,7 +93,7 @@ public class DashboardViewModel : BaseViewModel {
         });
     }
 
-    private string _loadText;
+    private string _loadText = "";
     public string LoadText {
         get => _loadText;
         set => SetProperty(ref _loadText, value);
@@ -116,11 +117,12 @@ public class DashboardViewModel : BaseViewModel {
 
     #region Constructor
 
-    public DashboardViewModel(IMvxNavigationService navigationService, AppConfigModel config, ILogger logger, ServersState serversState, LauncherService launcherService, ClientService clientService, CurrentUserState currentUserState) : base(navigationService, config, logger) {
+    public DashboardViewModel(IMvxNavigationService navigationService, AppConfigModel config, ILogger logger, ServersState serversState, LauncherService launcherService, ClientService clientService, CurrentUserState currentUserState, DownloadState downloadState) : base(navigationService, config, logger) {
         _serversState = serversState;
         _launcherService = launcherService;
         _clientService = clientService;
         _currentUserState = currentUserState;
+        _downloadState = downloadState;
 
         GoToServerListCommand = new MvxCommand(GoToServerList);
         ChooseProximaCommand = new MvxCommand(ChooseProximaServer);
@@ -158,14 +160,19 @@ public class DashboardViewModel : BaseViewModel {
     }
 
     private async Task PrepareGameAsync() {
+        var downloadHandler = DownloadProgressChanged;
+        _downloadState.OnChagePrecent += downloadHandler;
+
         LogInfo("[Start] Подготовка файлов игры");
-        await _launcherService.CheckServerFilesAsync(_serversState.CurrentServerName, DownloadProgressChanged);
+        await _launcherService.CheckServerFilesAsync(_serversState.CurrentServerName);
         LogInfo("[Start] Все файлы проверены");
+
+        _downloadState.OnChagePrecent -= downloadHandler;
     }
 
-    private void DownloadProgressChanged(int percent, string? downloadObject) {
-        LoadPrecent = percent;
-        LoadText = $"Загрузка клиента: {downloadObject} ...";
+    private void DownloadProgressChanged() {
+        LoadPrecent = _downloadState.Precent();
+        LoadText = $"Загрузка {LoadPrecent} %";
     }
 
     private void StartGame() {
